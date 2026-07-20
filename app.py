@@ -339,7 +339,7 @@ def admin_dashboard():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT COUNT(*) AS total FROM users WHERE role = "user"')
+    cursor.execute("SELECT COUNT(*) AS total FROM users WHERE role = 'user'")
     total_users = cursor.fetchone()['total']
 
     cursor.execute('SELECT COUNT(*) AS total FROM destinations')
@@ -348,10 +348,10 @@ def admin_dashboard():
     cursor.execute('SELECT COUNT(*) AS total FROM packages')
     total_packages = cursor.fetchone()['total']
 
-    cursor.execute('SELECT COUNT(*) AS total FROM bookings WHERE status = "Pending"')
+    cursor.execute("SELECT COUNT(*) AS total FROM bookings WHERE status = 'Pending'")
     pending_bookings = cursor.fetchone()['total']
 
-    cursor.execute('SELECT COUNT(*) AS total FROM bookings WHERE status = "Confirmed"')
+    cursor.execute("SELECT COUNT(*) AS total FROM bookings WHERE status = 'Confirmed'")
     confirmed_bookings = cursor.fetchone()['total']
 
     cursor.execute('SELECT * FROM contact_messages ORDER BY created_at DESC')
