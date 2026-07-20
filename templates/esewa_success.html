@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Payment Successful{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow border-0 text-center">
+                <div class="card-body p-5">
+                    <div class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="mb-1">Payment Successful</h3>
+                    <p class="text-muted mb-4">Your booking has been received and is pending confirmation.</p>
+
+                    <div class="bg-light rounded p-3 text-start mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Transaction ID</span>
+                            <strong>{{ transaction.transaction_id }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Package</span>
+                            <strong>{{ transaction.package_title }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Amount Paid</span>
+                            <strong class="text-success">Rs. {{ "{:,.0f}".format(transaction.amount) }}</strong>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('my_bookings') }}" class="btn btn-primary w-100">View My Bookings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

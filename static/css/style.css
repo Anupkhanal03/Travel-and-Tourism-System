@@ -1,0 +1,195 @@
+/* Hero section on homepage */
+.hero-section {
+    height: 70vh;
+    min-height: 400px;
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+                url('https://images.unsplash.com/photo-1605640840605-14ac1855827b?w=1600') center/cover no-repeat;
+}
+
+/* Card hover effect for destination/package cards */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+}
+
+/* Make navbar brand stand out a bit */
+.navbar-brand {
+    letter-spacing: 0.5px;
+}
+/* Smooth scroll for anchor links */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Footer always at bottom even on short pages */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+main {
+    flex: 1;
+}
+
+/* Better empty-state spacing */
+.alert {
+    border-radius: 8px;
+}
+
+/* Subtle button polish */
+.btn {
+    border-radius: 6px;
+}
+
+/* ===== CHATBOT STYLING ===== */
+.chatbot-container {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 2000;
+    font-family: inherit;
+}
+.chatbot-toggle-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd, #00c6ff);
+    color: white;
+    border: none;
+    font-size: 28px;
+    box-shadow: 0 4px 20px rgba(13, 110, 253, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+.chatbot-toggle-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 25px rgba(13, 110, 253, 0.6);
+}
+.chatbot-window {
+    width: 360px;
+    height: 520px;
+    position: absolute;
+    bottom: 75px;
+    right: 0;
+    z-index: 2001;
+    display: flex;
+    flex-direction: column;
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-origin: bottom right;
+}
+.chatbot-messages {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 5px;
+}
+.chat-message {
+    display: flex;
+    max-width: 80%;
+}
+.chat-message.bot-message {
+    align-self: flex-start;
+}
+.chat-message.user-message {
+    align-self: flex-end;
+}
+.message-content {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    word-break: break-word;
+}
+.bot-message .message-content {
+    background-color: #ffffff;
+    color: #212529;
+    border-top-left-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.user-message .message-content {
+    background: linear-gradient(135deg, #0d6efd, #0084ff);
+    color: white;
+    border-top-right-radius: 4px;
+}
+.suggestion-chip {
+    font-size: 0.8rem !important;
+    border-radius: 20px !important;
+    padding: 6px 12px !important;
+    background-color: white !important;
+    border: 1px solid #dee2e6 !important;
+    color: #495057 !important;
+    transition: all 0.2s ease !important;
+    text-align: left;
+}
+.suggestion-chip:hover {
+    background-color: #e9ecef !important;
+    border-color: #adb5bd !important;
+    color: #0d6efd !important;
+    transform: translateY(-1px);
+}
+.chatbot-messages::-webkit-scrollbar {
+    width: 6px;
+}
+.chatbot-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.chatbot-messages::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+.chatbot-messages::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* ===== ANALYTICS CARDS & CUSTOM DESIGN ===== */
+.analytics-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+.analytics-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+.metric-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+.badge-match {
+    background: linear-gradient(135deg, #20c997, #099268);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.hero-insights {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 25px rgba(30, 60, 114, 0.2);
+}

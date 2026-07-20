@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-primary">{{ total_users }}</h2>
+                    <p class="text-muted mb-0">Registered Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-success">{{ total_destinations }}</h2>
+                    <p class="text-muted mb-0">Destinations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-info">{{ total_packages }}</h2>
+                    <p class="text-muted mb-0">Packages</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-warning">{{ pending_bookings }}</h2>
+                    <p class="text-muted mb-0">Pending Bookings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="list-group">
+        <a href="{{ url_for('admin_bookings') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            Manage Bookings
+            <span class="badge bg-warning text-dark">{{ pending_bookings }} pending</span>
+        </a>
+        <a href="{{ url_for('admin_destinations') }}" class="list-group-item list-group-item-action">Manage Destinations</a>
+        <a href="{{ url_for('admin_packages') }}" class="list-group-item list-group-item-action">Manage Packages</a>
+    </div>
+
+    <h4 class="mt-5 mb-3">Recent Contact Messages</h4>
+    {% if contact_messages %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in contact_messages %}
+                <tr>
+                    <td class="text-nowrap">{{ msg.created_at.strftime('%Y-%m-%d %H:%M') if msg.created_at else '' }}</td>
+                    <td>{{ msg.name }}</td>
+                    <td><a href="mailto:{{ msg.email }}">{{ msg.email }}</a></td>
+                    <td>{{ msg.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No messages yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if package else 'Add' }} Package{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="mb-4">{{ 'Edit' if package else 'Add New' }} Package</h3>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Destination</label>
+                            <select name="destination_id" class="form-select" required>
+                                <option value="" disabled {{ '' if package else 'selected' }}>Select a destination</option>
+                                {% for d in destinations %}
+                                <option value="{{ d.id }}" {{ 'selected' if package and package.destination_id == d.id else '' }}>{{ d.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" value="{{ package.title if package else '' }}" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Price (Rs.)</label>
+                                <input type="number" step="0.01" name="price" class="form-control" value="{{ package.price if package else '' }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Duration (days)</label>
+                                <input type="number" name="duration_days" class="form-control" value="{{ package.duration_days if package else '' }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Max People</label>
+                                <input type="number" name="max_people" class="form-control" value="{{ package.max_people if package else 10 }}" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image filename</label>
+                            <input type="text" name="image" class="form-control" placeholder="e.g. ebc_pkg.jpg" value="{{ package.image if package else '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="4" required>{{ package.description if package else '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">{{ 'Update' if package else 'Add' }} Package</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

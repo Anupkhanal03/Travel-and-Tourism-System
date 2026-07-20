@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Manage Bookings{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Manage Bookings</h2>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+    <tr>
+        <th>Customer</th>
+        <th>Package</th>
+        <th>Date</th>
+        <th>People</th>
+        <th>Total</th>
+        <th>Booking Status</th>
+        <th>Payment</th>
+        <th>Actions</th>
+    </tr>
+</thead>
+<tbody>
+    {% for b in bookings %}
+    <tr>
+        <td>{{ b.full_name }}<br><small class="text-muted">{{ b.email }}</small></td>
+        <td>{{ b.title }}<br><small class="text-muted">{{ b.destination_name }}</small></td>
+        <td>{{ b.travel_date }}</td>
+        <td>{{ b.num_people }}</td>
+        <td>Rs. {{ "{:,.0f}".format(b.total_price) }}</td>
+        <td>
+            {% if b.status == 'Confirmed' %}
+                <span class="badge bg-success">{{ b.status }}</span>
+            {% elif b.status == 'Cancelled' %}
+                <span class="badge bg-secondary">{{ b.status }}</span>
+            {% else %}
+                <span class="badge bg-warning text-dark">{{ b.status }}</span>
+            {% endif %}
+        </td>
+        <td>
+            {% if b.payment_status == 'Paid' %}
+                <span class="badge bg-success">Paid</span><br>
+                <small class="text-muted">{{ b.transaction_id }}</small>
+            {% else %}
+                <span class="badge bg-danger">Unpaid</span>
+            {% endif %}
+        </td>
+        <td>
+            {% if b.status == 'Pending' %}
+            <a href="{{ url_for('update_booking_status', booking_id=b.id, status='Confirmed') }}" class="btn btn-sm btn-success mb-1">Confirm</a>
+            <a href="{{ url_for('update_booking_status', booking_id=b.id, status='Cancelled') }}" class="btn btn-sm btn-danger mb-1">Reject</a>
+            {% endif %}
+            <a href="{{ url_for('delete_booking', booking_id=b.id) }}" class="btn btn-sm btn-outline-danger mb-1" onclick="return confirm('Are you sure you want to completely delete this booking? This action cannot be undone.');">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

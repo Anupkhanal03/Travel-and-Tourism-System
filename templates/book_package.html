@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}Book {{ package.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="mb-1">{{ package.title }}</h3>
+                    <p class="text-muted">{{ package.destination_name }} &middot; {{ package.duration_days }} days</p>
+                    <h4 class="text-success mb-4">Rs. {{ "{:,.0f}".format(package.price) }} <span class="fs-6 text-muted">per person</span></h4>
+
+                    <form method="POST" action="{{ url_for('book_package', package_id=package.id) }}">
+                        <div class="mb-3">
+                            <label class="form-label">Number of People</label>
+                            <input type="number" name="num_people" id="numPeople" class="form-control" min="1" max="{{ package.max_people }}" value="1" required>
+                            <small class="text-muted">Max {{ package.max_people }} people per booking</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Travel Date</label>
+                            <input type="date" name="travel_date" class="form-control" min="{{ today }}" required>
+                        </div>
+                        <div class="mb-4">
+                            <p class="mb-0">Total Price: <strong class="text-success" id="totalPrice">Rs. {{ "{:,.0f}".format(package.price) }}</strong></p>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Confirm Booking</button>
+                    </form>
+                </div>
+            </div>
+            {% if itineraries %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-body p-4">
+                    <h4 class="mb-4"><i class="bi bi-map"></i> Day-by-Day Itinerary & Trail Map</h4>
+                    
+                    <div id="itineraryMap" class="mb-4 border" style="height: 350px; width: 100%; border-radius: 8px; z-index: 1;"></div>
+
+                    <div class="accordion" id="itineraryAccordion">
+                        {% for item in itineraries %}
+                        <div class="accordion-item border-0 border-bottom">
+                            <h2 class="accordion-header" id="heading{{ item.day_number }}">
+                                <button class="accordion-button {% if not loop.first %}collapsed{% endif %} bg-transparent fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ item.day_number }}" aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ item.day_number }}">
+                                    <span class="text-primary me-2">Day {{ item.day_number }}:</span> {{ item.title }}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ item.day_number }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" aria-labelledby="heading{{ item.day_number }}" data-bs-parent="#itineraryAccordion">
+                                <div class="accordion-body text-muted" style="line-height: 1.7;">
+                                    {{ item.description }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Live-update total price as the number of people changes
+    const pricePerPerson = parseFloat("{{ package.price }}".replace(/,/g, '')) || 0;
+    const numPeopleInput = document.getElementById('numPeople');
+    const totalPriceEl = document.getElementById('totalPrice');
+
+    numPeopleInput.addEventListener('input', function() {
+        const people = parseInt(this.value) || 1;
+        const total = pricePerPerson * people;
+        totalPriceEl.textContent = 'Rs. ' + total.toLocaleString();
+    });
+
+    // {% if itineraries %}
+    document.addEventListener("DOMContentLoaded", function() {
+        var map = L.map('itineraryMap');
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var trailCoords = [];
+        var bounds = L.latLngBounds();
+
+        // {% for item in itineraries %}
+            // {% if item.latitude and item.longitude %}
+            var lat = parseFloat("{{ item.latitude }}");
+            var lng = parseFloat("{{ item.longitude }}");
+            
+            // Prevent markers from perfectly overlapping (e.g., rest days)
+            for (var j = 0; j < trailCoords.length; j++) {
+                if (Math.abs(trailCoords[j][0] - lat) < 0.002 && Math.abs(trailCoords[j][1] - lng) < 0.002) {
+                    lat += 0.004; // Add a visual offset
+                    lng += 0.004;
+                }
+            }
+            
+            // Create a custom icon for the marker with the day number
+            var dayIcon = L.divIcon({
+                className: 'custom-day-marker',
+                html: '<div style="background-color: #dc3545; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ item.day_number }}</div>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+            
+            var marker = L.marker([lat, lng], {icon: dayIcon}).addTo(map);
+            var popupContentStr = "<div id='popup-content-{{ item.day_number }}' style='min-width: 200px;'>" +
+                               "<div id='img-container-{{ item.day_number }}' style='width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 4px; margin-bottom: 8px; overflow: hidden;'><small class='text-muted'>Loading image...</small></div>" +
+                               "<b>Day {{ item.day_number }}:</b> {{ item.title }}<br><small class='text-muted'>Stop Point</small>" +
+                               "</div>";
+            marker.bindPopup(popupContentStr);
+            
+            marker.wikiImageUrl = null;
+            marker.isFetching = false;
+            
+            marker.on('popupopen', function(e) {
+                var targetMarker = e.target;
+                var imgContainer = document.getElementById('img-container-{{ item.day_number }}');
+                if (!imgContainer) return;
+                
+                if (targetMarker.wikiImageUrl) {
+                    imgContainer.innerHTML = "<img src='" + targetMarker.wikiImageUrl + "' style='width: 100%; height: 100%; object-fit: cover;'>";
+                    return;
+                }
+                
+                if (targetMarker.isFetching) return;
+                targetMarker.isFetching = true;
+                
+                var rawTitle = "{{ item.title }}";
+                var cleanTitle = rawTitle.replace(/Trek to |Exploring |Arrival in | & Preparation|Full Day | Tour|Final Departure or Onward Journey|Acclimatization and Rest Day|Local Village Exploration|Scenic Viewpoint Hike|Cultural Heritage Site/ig, "").trim();
+                
+                var defaultImg = "{% if package and package.image_url %}{{ url_for('static', filename='images/' + package.image_url) }}{% else %}https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=300&q=80{% endif %}";
+                
+                function applyImage(src) {
+                    targetMarker.wikiImageUrl = src;
+                    imgContainer.innerHTML = "<img src='" + src + "' style='width: 100%; height: 100%; object-fit: cover;'>";
+                    targetMarker.isFetching = false;
+                }
+
+                function doGeoSearch() {
+                    var geoUrl = "https://en.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord={{ item.latitude }}|{{ item.longitude }}&ggsradius=10000&ggslimit=10&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=300&origin=*";
+                    window.usedWikiImages = window.usedWikiImages || new Set();
+                    
+                    fetch(geoUrl).then(res => res.json()).then(data => {
+                        if (data.query && data.query.pages) {
+                            var pages = data.query.pages;
+                            var selectedImg = null;
+                            var firstImg = null;
+                            for (var key in pages) {
+                                if (pages[key].thumbnail) {
+                                    var src = pages[key].thumbnail.source;
+                                    if (!firstImg) firstImg = src;
+                                    if (!window.usedWikiImages.has(src)) { selectedImg = src; break; }
+                                }
+                            }
+                            if (selectedImg) { window.usedWikiImages.add(selectedImg); applyImage(selectedImg); }
+                            else if (firstImg) { applyImage(firstImg); }
+                            else { applyImage(defaultImg); }
+                        } else { applyImage(defaultImg); }
+                    }).catch(err => applyImage(defaultImg));
+                }
+
+                if (cleanTitle.length > 2) {
+                    var searchTerm = encodeURIComponent(cleanTitle + " Nepal");
+                    var searchUrl = "https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=" + searchTerm + "&gsrlimit=1&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=300&origin=*";
+                    fetch(searchUrl).then(res => res.json()).then(data => {
+                        if (data.query && data.query.pages) {
+                            var pages = data.query.pages;
+                            var pageId = Object.keys(pages)[0];
+                            if (pages[pageId].thumbnail) {
+                                applyImage(pages[pageId].thumbnail.source);
+                            } else {
+                                doGeoSearch();
+                            }
+                        } else {
+                            doGeoSearch();
+                        }
+                    }).catch(err => doGeoSearch());
+                } else {
+                    doGeoSearch();
+                }
+            });
+            
+            trailCoords.push([lat, lng]);
+            bounds.extend([lat, lng]);
+            // {% endif %}
+        // {% endfor %}
+
+        if (trailCoords.length > 0) {
+            var trailLine = L.polyline(trailCoords, {color: '#dc3545', weight: 4, opacity: 0.8, dashArray: '8, 8'}).addTo(map);
+            map.fitBounds(bounds, {padding: [40, 40]});
+        }
+    });
+    // {% endif %}
+</script>
+
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+{% endblock %}

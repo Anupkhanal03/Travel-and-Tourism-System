@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}My Insights & Recommendations{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Header -->
+    <div class="hero-insights mb-4">
+        <h1 class="fw-bold mb-2"><i class="bi bi-compass-fill text-warning"></i> My Travel Insights</h1>
+        <p class="lead mb-0">Discover your travel profile and explore personalized package recommendations powered by AI.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Personal Travel Profile (Data Science Section) -->
+        <div class="col-lg-5">
+            <div class="card analytics-card p-4 bg-white h-100">
+                <h4 class="fw-bold text-dark mb-3"><i class="bi bi-person-badge-fill text-primary"></i> My Travel Profile</h4>
+                
+                {% if total_trips > 0 %}
+                    <div class="row align-items-center mb-3">
+                        <div class="col-6 text-center border-end">
+                            <small class="text-muted text-uppercase d-block" style="font-size: 0.75rem;">Total Booked</small>
+                            <span class="fs-2 fw-bold text-primary">{{ total_trips }}</span>
+                            <span class="text-muted d-block" style="font-size: 0.75rem;">Active Tours</span>
+                        </div>
+                        <div class="col-6 text-center">
+                            <small class="text-muted text-uppercase d-block" style="font-size: 0.75rem;">Total Investment</small>
+                            <span class="fs-2 fw-bold text-success" style="font-size: 1.5rem !important; display: block; margin-top: 5px;">Rs. {{ "{:,.2f}".format(total_spending) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-container mb-2" style="height: 220px;">
+                        <canvas id="userCategoryChart"></canvas>
+                    </div>
+                    <div class="alert alert-light border-0 py-2 px-3 mt-2" style="font-size: 0.8rem;">
+                        <i class="bi bi-lightbulb-fill text-warning me-1"></i> Your preferred travel category is <strong>
+                        {% if top_category %}
+                            {{ top_category }}
+                        {% else %}
+                            None
+                        {% endif %}
+                        </strong> based on your travel history.
+                    </div>
+                {% else %}
+                    <!-- Empty state -->
+                    <div class="text-center py-5">
+                        <i class="bi bi-chat-heart text-muted" style="font-size: 4rem;"></i>
+                        <h5 class="fw-bold mt-3">No Travel History Yet</h5>
+                        <p class="text-muted px-3" style="font-size: 0.9rem;">Once you book packages, we will build a statistical breakdown of your favorite categories and calculate similarity matches.</p>
+                        <a href="{{ url_for('packages') }}" class="btn btn-primary btn-sm mt-2 px-4 rounded-pill">Browse Packages</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- AI Recommender Results -->
+        <div class="col-lg-7">
+            <div class="card analytics-card p-4 bg-white h-100">
+                <h4 class="fw-bold text-dark mb-1"><i class="bi bi-stars text-warning"></i> AI Recommended Packages</h4>
+                <p class="text-muted mb-4" style="font-size: 0.85rem;">Calculated using Content-Based filtering (TF-IDF vector matching on title, category, description, and location metadata).</p>
+
+                <div class="d-flex flex-column gap-3">
+                    {% for pkg in recommendations %}
+                        <div class="card p-3 border-light-subtle shadow-sm">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-md-3 text-center mb-3 mb-md-0">
+                                    <img src="{{ url_for('static', filename='images/' + pkg.image) }}?v=3" class="img-fluid rounded" alt="{{ pkg.title }}" style="max-height: 100px; object-fit: cover; width: 100%;" onerror="this.src='https://placehold.co/500x100?text=Package'">
+                                </div>
+                                <div class="col-md-9 ps-md-3">
+                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+                                        <h5 class="fw-bold mb-0" style="font-size: 1.05rem;">{{ pkg.title }}</h5>
+                                        <span class="badge-match">{{ pkg.match_score }}% Match</span>
+                                    </div>
+                                    <p class="text-muted mb-2" style="font-size: 0.8rem;">Category: <span class="badge bg-secondary-subtle text-secondary">{{ pkg.dest_category }}</span> | Duration: {{ pkg.duration_days }} Days</p>
+                                    <p class="text-dark small mb-2 text-truncate" style="max-width: 90%;">{{ pkg.description }}</p>
+                                    
+                                    <!-- Recommendation Reason alert -->
+                                    <div class="bg-light p-2 rounded mb-2 text-muted" style="font-size: 0.75rem;">
+                                        <i class="bi bi-info-circle-fill text-info me-1"></i> {{ pkg.reason }}
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                        <span class="fw-bold text-success" style="font-size: 1.1rem;">Rs. {{ "{:,.2f}".format(pkg.price) }}</span>
+                                        <a href="{{ url_for('book_package', package_id=pkg.id) }}" class="btn btn-primary btn-sm px-3 fw-semibold">Book Tour</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if total_trips > 0 %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="application/json" id="categories-data">
+    {{ categories | tojson | safe }}
+</script>
+<script type="application/json" id="counts-data">
+    {{ counts | tojson | safe }}
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById("userCategoryChart").getContext("2d");
+        
+        // Pass server variables safely to JS by parsing from text to avoid lint errors
+        const categories = JSON.parse(document.getElementById('categories-data').textContent);
+        const counts = JSON.parse(document.getElementById('counts-data').textContent);
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categories,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: [
+                        '#0d6efd', // Blue
+                        '#20c997', // Teal
+                        '#ffc107', // Yellow
+                        '#0dcaf0', // Cyan
+                        '#fd7e14'  // Orange
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

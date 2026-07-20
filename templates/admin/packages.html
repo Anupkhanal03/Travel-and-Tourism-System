@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Manage Packages{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Manage Packages</h2>
+        <a href="{{ url_for('add_package') }}" class="btn btn-primary">+ Add Package</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Destination</th>
+                    <th>Price</th>
+                    <th>Duration</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in packages %}
+                <tr>
+                    <td>{{ p.title }}</td>
+                    <td>{{ p.destination_name }}</td>
+                    <td>Rs. {{ "{:,.0f}".format(p.price) }}</td>
+                    <td>{{ p.duration_days }} days</td>
+                    <td>
+                        <a href="{{ url_for('edit_package', pkg_id=p.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{{ url_for('delete_package', pkg_id=p.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

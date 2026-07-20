@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if destination else 'Add' }} Destination{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="mb-4">{{ 'Edit' if destination else 'Add New' }} Destination</h3>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" name="name" class="form-control" value="{{ destination.name if destination else '' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-control" value="{{ destination.location if destination else '' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select">
+                                {% for cat in ['Mountain', 'Heritage', 'Wildlife', 'Lake', 'Adventure'] %}
+                                <option value="{{ cat }}" {{ 'selected' if destination and destination.category == cat else '' }}>{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image filename</label>
+                            <input type="text" name="image" class="form-control" placeholder="e.g. pokhara.jpg" value="{{ destination.image if destination else '' }}">
+                            <small class="text-muted">Upload the actual file to static/images/ separately</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="4" required>{{ destination.description if destination else '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">{{ 'Update' if destination else 'Add' }} Destination</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

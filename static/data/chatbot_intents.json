@@ -1,0 +1,153 @@
+{
+  "intents": [
+    {
+      "intent": "greeting",
+      "patterns": [
+        "hi",
+        "hello",
+        "hey",
+        "namaste",
+        "greetings",
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "is anyone there?",
+        "hi there"
+      ],
+      "responses": [
+        "Namaste! Welcome to Nepal Travel Assistant. How can I help you plan your journey today?",
+        "Hello! I am your AI travel guide for Nepal. What are you looking to explore?",
+        "Hi there! Ready to discover the beauty of Nepal? How can I assist you?"
+      ]
+    },
+    {
+      "intent": "goodbye",
+      "patterns": [
+        "bye",
+        "goodbye",
+        "see you later",
+        "thank you, bye",
+        "exit",
+        "quit",
+        "thanks for the help"
+      ],
+      "responses": [
+        "Goodbye! Have a safe and wonderful journey in Nepal!",
+        "Subha Yatra (Safe travels)! Feel free to chat again if you need more help.",
+        "Thank you for chatting! Hope to see you in the Himalayas soon. Bye!"
+      ]
+    },
+    {
+      "intent": "recommendation",
+      "patterns": [
+        "recommend a package",
+        "where should i go?",
+        "suggest some destinations",
+        "show me some popular places",
+        "i want to go trekking",
+        "hiking in mountains",
+        "wildlife jungle safari",
+        "best lakes in nepal",
+        "adventure sports bungee jumping rafting",
+        "historical heritage site tour temples",
+        "cultural trips",
+        "what are the best packages?"
+      ],
+      "responses": [
+        "I can definitely help with that! Here are some top destinations in Nepal based on your interest: ",
+        "Nepal has amazing destinations! Here are some recommended packages that you might like: "
+      ]
+    },
+    {
+      "intent": "pricing",
+      "patterns": [
+        "budget packages",
+        "cheap tours",
+        "inexpensive trips",
+        "packages under 15000",
+        "options under 50000",
+        "how much does a trek cost?",
+        "cost of travel",
+        "price list of packages",
+        "affordable holidays"
+      ],
+      "responses": [
+        "Here are our travel packages matching your budget. Let me know if you want to know more about any of them!",
+        "We have several options matching different budget tiers. Here are our packages sorted by price:"
+      ]
+    },
+    {
+      "intent": "weather",
+      "patterns": [
+        "best time to visit nepal",
+        "when should i travel?",
+        "weather in everest",
+        "monsoon season in nepal",
+        "trekking season months",
+        "is it cold in winter?"
+      ],
+      "responses": [
+        "The best time to visit Nepal is during the autumn (September to November) and spring (March to May) seasons. The skies are crystal clear, making it perfect for trekking and sightseeing!",
+        "For mountain trekking, Spring (March-May) offers blooming rhododendrons and warm weather. Autumn (Sept-Nov) offers the clearest views. Monsoon (June-August) is wet and not recommended for high treks, but great for lush valleys."
+      ]
+    },
+    {
+      "intent": "booking_help",
+      "patterns": [
+        "how do i book a package?",
+        "how to pay using esewa",
+        "payment methods supported",
+        "can i cancel my booking?",
+        "how do i confirm booking?",
+        "refund policy cancellation"
+      ],
+      "responses": [
+        "To book a package, simply go to the 'Packages' page, select your preferred itinerary, and click 'Book Now'. You will be prompted to enter the travel date and number of people, followed by secure payment simulation via eSewa.",
+        "You can manage all your bookings from the 'My Bookings' page. If you need to cancel, you can do so directly from your dashboard. Bookings require online payment for confirmation."
+      ]
+    },
+    {
+      "intent": "faq",
+      "patterns": [
+        "do i need a visa for nepal?",
+        "is nepal safe for tourists?",
+        "what should i pack?",
+        "what is the height of mount everest?",
+        "local currency in nepal",
+        "language spoken in nepal"
+      ],
+      "responses": [
+        "Most foreigners can obtain a Visa on Arrival at Tribhuvan International Airport in Kathmandu or at land border crossings. Indian nationals do not require a visa.",
+        "Nepal is generally very safe for tourists, with friendly locals and a hospitable culture. For trekking, it is recommended to hire a licensed guide for safety.",
+        "When packing for Nepal, layering is key! Bring lightweight breathable clothes for lower altitudes, a warm down jacket/fleece for mountains, sturdy broken-in hiking boots, sunscreen, and water purification tablets."
+      ]
+    },
+    {
+      "intent": "booking_status",
+      "patterns": [
+        "what is my booking status",
+        "show my bookings",
+        "my reservations",
+        "did my booking go through",
+        "check my trips",
+        "status of my package"
+      ],
+      "responses": [
+        "Let me check your active bookings for you."
+      ]
+    },
+    {
+      "intent": "entity_query",
+      "patterns": [
+        "tell me about",
+        "what is the",
+        "give me a summary of",
+        "information on",
+        "details about"
+      ],
+      "responses": [
+        "Here is the information you requested:"
+      ]
+    }
+  ]
+}

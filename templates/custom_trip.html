@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Build Your Own Trip{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Build Your Own Trip 🪄</h1>
+        <p class="lead text-muted">Tell us what you're looking for, and our AI will curate the perfect Nepal itinerary for you.</p>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-body p-5">
+                    <form method="POST" action="{{ url_for('custom_trip') }}">
+                        <div class="mb-4">
+                            <label for="budget" class="form-label fw-bold"><i class="bi bi-wallet2 text-success"></i> Maximum Budget (Rs.)</label>
+                            <input type="number" class="form-control form-control-lg" id="budget" name="budget" placeholder="e.g. 50000" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="duration" class="form-label fw-bold"><i class="bi bi-calendar-range text-primary"></i> Maximum Duration (Days)</label>
+                            <input type="number" class="form-control form-control-lg" id="duration" name="duration" placeholder="e.g. 7" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="vibe" class="form-label fw-bold"><i class="bi bi-emoji-sunglasses text-warning"></i> What's your vibe?</label>
+                            <select class="form-select form-select-lg" id="vibe" name="vibe" required>
+                                <option value="" disabled selected>Select an experience...</option>
+                                <option value="adventure">Adventure & Thrill</option>
+                                <option value="mountain">Mountain Trekking</option>
+                                <option value="wildlife">Wildlife & Safari</option>
+                                <option value="heritage">Culture & Heritage</option>
+                                <option value="lake">Relaxing by the Lake</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow"><i class="bi bi-magic"></i> Generate My Trip</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if packages is not none %}
+        <hr class="my-5" id="results">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Here are your best matches! ✨</h2>
+            <p class="text-muted">Based on your preferences, we think you'll love these packages.</p>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const resultsEl = document.getElementById("results");
+                if (resultsEl) {
+                    resultsEl.scrollIntoView({ behavior: "smooth" });
+                }
+            });
+        </script>
+        
+        {% if packages %}
+        <div class="row g-4">
+            {% for pkg in packages %}
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 position-relative overflow-hidden">
+                    <span class="badge bg-danger position-absolute top-0 start-0 m-3 fs-6 z-1">Top Match</span>
+                    <img src="{{ url_for('static', filename='images/' + pkg.image) }}" class="card-img-top" alt="{{ pkg.title }}" style="height: 200px; object-fit: cover;" onerror="this.src='https://placehold.co/400x200?text=Nepal'">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold text-primary">{{ pkg.title }}</h5>
+                        <p class="card-text text-muted mb-3"><i class="bi bi-geo-alt-fill text-danger"></i> {{ pkg.destination_name }}</p>
+                        <p class="card-text small">{{ pkg.description | truncate(100) }}</p>
+                        
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <span class="text-success fw-bold fs-5">Rs. {{ "{:,.0f}".format(pkg.price) }}</span>
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-clock"></i> {{ pkg.duration_days }} Days
+                                </div>
+                            </div>
+                            <a href="{{ url_for('book_package', package_id=pkg.id) }}" class="btn btn-outline-primary w-100 fw-bold">View & Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center">
+            <p class="mb-0">Sorry, we couldn't find any packages matching those exact criteria. Try increasing your budget or duration!</p>
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

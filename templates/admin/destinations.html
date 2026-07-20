@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Manage Destinations{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Manage Destinations</h2>
+        <a href="{{ url_for('add_destination') }}" class="btn btn-primary">+ Add Destination</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in destinations %}
+                <tr>
+                    <td>{{ d.name }}</td>
+                    <td>{{ d.location }}</td>
+                    <td><span class="badge bg-info text-dark">{{ d.category }}</span></td>
+                    <td>
+                        <a href="{{ url_for('edit_destination', dest_id=d.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{{ url_for('delete_destination', dest_id=d.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this destination? This will also delete its packages.')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
