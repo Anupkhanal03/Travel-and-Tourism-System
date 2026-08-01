@@ -16,6 +16,7 @@
                     <th>Destination</th>
                     <th>Price</th>
                     <th>Duration</th>
+                    <th>Max People</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -26,6 +27,7 @@
                     <td>{{ p.destination_name }}</td>
                     <td>Rs. {{ "{:,.0f}".format(p.price) }}</td>
                     <td>{{ p.duration_days }} days</td>
+                    <td>{{ p.max_people }}</td>
                     <td>
                         <a href="{{ url_for('edit_package', pkg_id=p.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                         <a href="{{ url_for('delete_package', pkg_id=p.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this package?')">Delete</a>

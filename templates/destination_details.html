@@ -98,39 +98,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }).addTo(map);
 
     let destinationName = "{{ destination.name }}";
+    let destLat = {% if destination.latitude %}{{ destination.latitude }}{% else %}null{% endif %};
+    let destLon = {% if destination.longitude %}{{ destination.longitude }}{% else %}null{% endif %};
     
-    // Accurate coordinates for known Nepal destinations
-    const coordinates = {
-        "Pokhara": [28.2096, 83.9856],
-        "Chitwan National Park": [27.5341, 84.4525],
-        "Everest Base Camp": [28.0026, 86.8526],
-        "Kathmandu Durbar Square": [27.7042, 85.3065],
-        "Annapurna Conservation Area": [28.5300, 83.8780],
-        "Bardia National Park": [28.4314, 81.2858],
-        "Lumbini": [27.4786, 83.2759],
-        "Rara Lake": [29.5311, 82.0805],
-        "Bhotekoshi River": [27.8767, 85.8972],
-        "Mustang": [28.9985, 83.8473],
-        "Ghandruk": [28.3756, 83.8072],
-        "Langtang": [28.2198, 85.5562],
-        "Poon Hill": [28.4000, 83.6933],
-        "Ilam": [26.9110, 87.9272],
-        "Janakpur": [26.7271, 85.9243],
-        "Manaslu": [28.5500, 84.5667],
-        "Bandipur": [27.9388, 84.4171],
-        "Gosainkunda": [28.0833, 85.3833],
-        "Muktinath": [28.8144, 83.8719]
-    };
-
-    if (coordinates[destinationName]) {
-        let lat = coordinates[destinationName][0];
-        let lon = coordinates[destinationName][1];
-        map.setView([lat, lon], 11);
-        L.marker([lat, lon]).addTo(map)
+    if (destLat !== null && destLon !== null) {
+        map.setView([destLat, destLon], 11);
+        L.marker([destLat, destLon]).addTo(map)
             .bindPopup(`<b>${destinationName}</b><br>{{ destination.location }}`)
             .openPopup();
     } else {
-        // Fallback to Kathmandu if location not found
+        // Fallback to Kathmandu if location not found in DB
         map.setView([27.7172, 85.3240], 10);
         L.marker([27.7172, 85.3240]).addTo(map).bindPopup("Kathmandu (Default Location)");
     }

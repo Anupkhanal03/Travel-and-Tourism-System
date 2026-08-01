@@ -8,7 +8,7 @@
             <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h3 class="mb-4">{{ 'Edit' if destination else 'Add New' }} Destination</h3>
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label class="form-label">Name</label>
                             <input type="text" name="name" class="form-control" value="{{ destination.name if destination else '' }}" required>
@@ -16,6 +16,13 @@
                         <div class="mb-3">
                             <label class="form-label">Location</label>
                             <input type="text" name="location" class="form-control" value="{{ destination.location if destination else '' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pinpoint on Map</label>
+                            <small class="d-block text-muted mb-2">Click on the map to set the exact coordinates.</small>
+                            <div id="pickerMap" style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                            <input type="hidden" name="latitude" id="latInput" value="{{ destination.latitude if destination else '' }}">
+                            <input type="hidden" name="longitude" id="lngInput" value="{{ destination.longitude if destination else '' }}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Category</label>
@@ -26,13 +33,30 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Image filename</label>
-                            <input type="text" name="image" class="form-control" placeholder="e.g. pokhara.jpg" value="{{ destination.image if destination else '' }}">
-                            <small class="text-muted">Upload the actual file to static/images/ separately</small>
+                            <label class="form-label">Image</label>
+                            {% if destination and destination.image %}
+                                <div class="mb-2">
+                                    <img src="{{ url_for('static', filename='images/' + destination.image) }}" alt="Current Image" width="100" class="rounded">
+                                </div>
+                            {% endif %}
+                            <input type="file" name="image_file" class="form-control" accept="image/*">
+                            <input type="hidden" name="existing_image" value="{{ destination.image if destination else '' }}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Description</label>
                             <textarea name="description" class="form-control" rows="4" required>{{ destination.description if destination else '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Special Features</label>
+                            <textarea name="special_features" class="form-control" rows="3">{{ destination.special_features if destination else '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Best Time to Visit</label>
+                            <textarea name="best_time_to_visit" class="form-control" rows="2">{{ destination.best_time_to_visit if destination else '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">History</label>
+                            <textarea name="history" class="form-control" rows="3">{{ destination.history if destination else '' }}</textarea>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">{{ 'Update' if destination else 'Add' }} Destination</button>
                     </form>
@@ -41,4 +65,46 @@
         </div>
     </div>
 </div>
+
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var latInput = document.getElementById('latInput');
+    var lngInput = document.getElementById('lngInput');
+    
+    var initialLat = latInput.value ? parseFloat(latInput.value) : 28.3949; // Nepal center
+    var initialLng = lngInput.value ? parseFloat(lngInput.value) : 84.1240;
+    var initialZoom = latInput.value ? 10 : 6;
+
+    var map = L.map('pickerMap').setView([initialLat, initialLng], initialZoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    var marker = null;
+    if (latInput.value && lngInput.value) {
+        marker = L.marker([initialLat, initialLng]).addTo(map);
+    }
+
+    map.on('click', function(e) {
+        var lat = e.latlng.lat.toFixed(6);
+        var lng = e.latlng.lng.toFixed(6);
+        
+        latInput.value = lat;
+        lngInput.value = lng;
+        
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
+        }
+    });
+});
+</script>
+
 {% endblock %}

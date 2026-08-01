@@ -8,7 +8,9 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import make_pipeline
 from db import get_db_connection
 from web_search import search_web
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class TravelChatbot:
     def __init__(self, intents_path="static/data/chatbot_intents.json"):

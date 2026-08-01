@@ -106,81 +106,9 @@
             
             var marker = L.marker([lat, lng], {icon: dayIcon}).addTo(map);
             var popupContentStr = "<div id='popup-content-{{ item.day_number }}' style='min-width: 200px;'>" +
-                               "<div id='img-container-{{ item.day_number }}' style='width: 100%; height: 120px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 4px; margin-bottom: 8px; overflow: hidden;'><small class='text-muted'>Loading image...</small></div>" +
                                "<b>Day {{ item.day_number }}:</b> {{ item.title }}<br><small class='text-muted'>Stop Point</small>" +
                                "</div>";
             marker.bindPopup(popupContentStr);
-            
-            marker.wikiImageUrl = null;
-            marker.isFetching = false;
-            
-            marker.on('popupopen', function(e) {
-                var targetMarker = e.target;
-                var imgContainer = document.getElementById('img-container-{{ item.day_number }}');
-                if (!imgContainer) return;
-                
-                if (targetMarker.wikiImageUrl) {
-                    imgContainer.innerHTML = "<img src='" + targetMarker.wikiImageUrl + "' style='width: 100%; height: 100%; object-fit: cover;'>";
-                    return;
-                }
-                
-                if (targetMarker.isFetching) return;
-                targetMarker.isFetching = true;
-                
-                var rawTitle = "{{ item.title }}";
-                var cleanTitle = rawTitle.replace(/Trek to |Exploring |Arrival in | & Preparation|Full Day | Tour|Final Departure or Onward Journey|Acclimatization and Rest Day|Local Village Exploration|Scenic Viewpoint Hike|Cultural Heritage Site/ig, "").trim();
-                
-                var defaultImg = "{% if package and package.image_url %}{{ url_for('static', filename='images/' + package.image_url) }}{% else %}https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=300&q=80{% endif %}";
-                
-                function applyImage(src) {
-                    targetMarker.wikiImageUrl = src;
-                    imgContainer.innerHTML = "<img src='" + src + "' style='width: 100%; height: 100%; object-fit: cover;'>";
-                    targetMarker.isFetching = false;
-                }
-
-                function doGeoSearch() {
-                    var geoUrl = "https://en.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord={{ item.latitude }}|{{ item.longitude }}&ggsradius=10000&ggslimit=10&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=300&origin=*";
-                    window.usedWikiImages = window.usedWikiImages || new Set();
-                    
-                    fetch(geoUrl).then(res => res.json()).then(data => {
-                        if (data.query && data.query.pages) {
-                            var pages = data.query.pages;
-                            var selectedImg = null;
-                            var firstImg = null;
-                            for (var key in pages) {
-                                if (pages[key].thumbnail) {
-                                    var src = pages[key].thumbnail.source;
-                                    if (!firstImg) firstImg = src;
-                                    if (!window.usedWikiImages.has(src)) { selectedImg = src; break; }
-                                }
-                            }
-                            if (selectedImg) { window.usedWikiImages.add(selectedImg); applyImage(selectedImg); }
-                            else if (firstImg) { applyImage(firstImg); }
-                            else { applyImage(defaultImg); }
-                        } else { applyImage(defaultImg); }
-                    }).catch(err => applyImage(defaultImg));
-                }
-
-                if (cleanTitle.length > 2) {
-                    var searchTerm = encodeURIComponent(cleanTitle + " Nepal");
-                    var searchUrl = "https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=" + searchTerm + "&gsrlimit=1&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=300&origin=*";
-                    fetch(searchUrl).then(res => res.json()).then(data => {
-                        if (data.query && data.query.pages) {
-                            var pages = data.query.pages;
-                            var pageId = Object.keys(pages)[0];
-                            if (pages[pageId].thumbnail) {
-                                applyImage(pages[pageId].thumbnail.source);
-                            } else {
-                                doGeoSearch();
-                            }
-                        } else {
-                            doGeoSearch();
-                        }
-                    }).catch(err => doGeoSearch());
-                } else {
-                    doGeoSearch();
-                }
-            });
             
             trailCoords.push([lat, lng]);
             bounds.extend([lat, lng]);

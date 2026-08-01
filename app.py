@@ -1,3 +1,5 @@
+import pandas as pd
+import numpy as np
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import re
 import random
@@ -6,8 +8,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db_connection
 from auth import login_required, admin_required
 from datetime import datetime
-import pandas as pd
-import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
@@ -16,9 +16,12 @@ from recommender import get_content_based_recommendations
 from textblob import TextBlob
 from flask import send_file
 from generate_pdf import generate_ticket_pdf
+import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'nepal_travel_secret_key_change_this_later'
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'images')
 
 @app.route('/')
 def home():
@@ -339,7 +342,7 @@ def admin_dashboard():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT COUNT(*) AS total FROM users WHERE role = 'user'")
+    cursor.execute('SELECT COUNT(*) AS total FROM users WHERE role = "user"')
     total_users = cursor.fetchone()['total']
 
     cursor.execute('SELECT COUNT(*) AS total FROM destinations')
@@ -348,10 +351,10 @@ def admin_dashboard():
     cursor.execute('SELECT COUNT(*) AS total FROM packages')
     total_packages = cursor.fetchone()['total']
 
-    cursor.execute("SELECT COUNT(*) AS total FROM bookings WHERE status = 'Pending'")
+    cursor.execute('SELECT COUNT(*) AS total FROM bookings WHERE status = "Pending"')
     pending_bookings = cursor.fetchone()['total']
 
-    cursor.execute("SELECT COUNT(*) AS total FROM bookings WHERE status = 'Confirmed'")
+    cursor.execute('SELECT COUNT(*) AS total FROM bookings WHERE status = "Confirmed"')
     confirmed_bookings = cursor.fetchone()['total']
 
     cursor.execute('SELECT * FROM contact_messages ORDER BY created_at DESC')
@@ -441,15 +444,30 @@ def add_destination():
         name = request.form['name']
         location = request.form['location']
         description = request.form['description']
-        image = request.form['image']
         category = request.form['category']
+        special_features = request.form.get('special_features', '')
+        best_time_to_visit = request.form.get('best_time_to_visit', '')
+        history = request.form.get('history', '')
+        
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+        latitude = float(latitude) if latitude else None
+        longitude = float(longitude) if longitude else None
+
+        image = request.form.get('existing_image', '')
+        if 'image_file' in request.files:
+            file = request.files['image_file']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                image = filename
 
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO destinations (name, location, description, image, category)
-            VALUES (%s, %s, %s, %s, %s)
-        ''', (name, location, description, image, category))
+            INSERT INTO destinations (name, location, description, image, category, special_features, best_time_to_visit, history, latitude, longitude)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (name, location, description, image, category, special_features, best_time_to_visit, history, latitude, longitude))
         conn.commit()
         cursor.close()
         conn.close()
@@ -470,13 +488,29 @@ def edit_destination(dest_id):
         name = request.form['name']
         location = request.form['location']
         description = request.form['description']
-        image = request.form['image']
         category = request.form['category']
+        special_features = request.form.get('special_features', '')
+        best_time_to_visit = request.form.get('best_time_to_visit', '')
+        history = request.form.get('history', '')
+        
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+        latitude = float(latitude) if latitude else None
+        longitude = float(longitude) if longitude else None
+
+        image = request.form.get('existing_image', '')
+        if 'image_file' in request.files:
+            file = request.files['image_file']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                image = filename
 
         cursor.execute('''
-            UPDATE destinations SET name=%s, location=%s, description=%s, image=%s, category=%s
+            UPDATE destinations SET name=%s, location=%s, description=%s, image=%s, category=%s,
+            special_features=%s, best_time_to_visit=%s, history=%s, latitude=%s, longitude=%s
             WHERE id=%s
-        ''', (name, location, description, image, category, dest_id))
+        ''', (name, location, description, image, category, special_features, best_time_to_visit, history, latitude, longitude, dest_id))
         conn.commit()
         cursor.close()
         conn.close()
@@ -539,12 +573,39 @@ def add_package():
         price = request.form['price']
         duration_days = request.form['duration_days']
         max_people = request.form['max_people']
-        image = request.form['image']
+        
+        image = request.form.get('existing_image', '')
+        if 'image_file' in request.files:
+            file = request.files['image_file']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                image = filename
 
         cursor.execute('''
             INSERT INTO packages (destination_id, title, description, price, duration_days, max_people, image)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         ''', (destination_id, title, description, price, duration_days, max_people, image))
+        new_pkg_id = cursor.lastrowid
+
+        itin_days = request.form.getlist('itinerary_day_number[]')
+        itin_titles = request.form.getlist('itinerary_title[]')
+        itin_descs = request.form.getlist('itinerary_description[]')
+        itin_lats = request.form.getlist('itinerary_latitude[]')
+        itin_lngs = request.form.getlist('itinerary_longitude[]')
+
+        for i in range(len(itin_days)):
+            if itin_titles[i]:
+                day_val = itin_days[i]
+                title_val = itin_titles[i]
+                desc_val = itin_descs[i] if len(itin_descs) > i else ''
+                lat_val = itin_lats[i] if len(itin_lats) > i and itin_lats[i] else None
+                lng_val = itin_lngs[i] if len(itin_lngs) > i and itin_lngs[i] else None
+                
+                cursor.execute('''
+                    INSERT INTO package_itineraries (package_id, day_number, title, description, latitude, longitude)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                ''', (new_pkg_id, day_val, title_val, desc_val, lat_val, lng_val))
         conn.commit()
         cursor.close()
         conn.close()
@@ -556,7 +617,7 @@ def add_package():
     destinations = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('admin/package_form.html', package=None, destinations=destinations)
+    return render_template('admin/package_form.html', package=None, destinations=destinations, itineraries=[])
 
 # ---------- ADMIN: EDIT PACKAGE ----------
 @app.route('/admin/packages/edit/<int:pkg_id>', methods=['GET', 'POST'])
@@ -572,12 +633,39 @@ def edit_package(pkg_id):
         price = request.form['price']
         duration_days = request.form['duration_days']
         max_people = request.form['max_people']
-        image = request.form['image']
+        
+        image = request.form.get('existing_image', '')
+        if 'image_file' in request.files:
+            file = request.files['image_file']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                image = filename
 
         cursor.execute('''
             UPDATE packages SET destination_id=%s, title=%s, description=%s, price=%s,
             duration_days=%s, max_people=%s, image=%s WHERE id=%s
         ''', (destination_id, title, description, price, duration_days, max_people, image, pkg_id))
+        
+        cursor.execute('DELETE FROM package_itineraries WHERE package_id = %s', (pkg_id,))
+        itin_days = request.form.getlist('itinerary_day_number[]')
+        itin_titles = request.form.getlist('itinerary_title[]')
+        itin_descs = request.form.getlist('itinerary_description[]')
+        itin_lats = request.form.getlist('itinerary_latitude[]')
+        itin_lngs = request.form.getlist('itinerary_longitude[]')
+
+        for i in range(len(itin_days)):
+            if itin_titles[i]:
+                day_val = itin_days[i]
+                title_val = itin_titles[i]
+                desc_val = itin_descs[i] if len(itin_descs) > i else ''
+                lat_val = itin_lats[i] if len(itin_lats) > i and itin_lats[i] else None
+                lng_val = itin_lngs[i] if len(itin_lngs) > i and itin_lngs[i] else None
+                
+                cursor.execute('''
+                    INSERT INTO package_itineraries (package_id, day_number, title, description, latitude, longitude)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                ''', (pkg_id, day_val, title_val, desc_val, lat_val, lng_val))
         conn.commit()
         cursor.close()
         conn.close()
@@ -589,6 +677,10 @@ def edit_package(pkg_id):
     package = cursor.fetchone()
     cursor.execute('SELECT * FROM destinations')
     destinations = cursor.fetchall()
+    
+    cursor.execute('SELECT * FROM package_itineraries WHERE package_id = %s ORDER BY day_number ASC', (pkg_id,))
+    itineraries = cursor.fetchall()
+    
     cursor.close()
     conn.close()
 
@@ -596,7 +688,7 @@ def edit_package(pkg_id):
         flash('Package not found.', 'error')
         return redirect(url_for('admin_packages'))
 
-    return render_template('admin/package_form.html', package=package, destinations=destinations)
+    return render_template('admin/package_form.html', package=package, destinations=destinations, itineraries=itineraries)
 
 # ---------- ADMIN: DELETE PACKAGE ----------
 @app.route('/admin/packages/delete/<int:pkg_id>')
@@ -1041,4 +1133,4 @@ def custom_trip():
     return render_template('custom_trip.html', packages=best_matches)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)

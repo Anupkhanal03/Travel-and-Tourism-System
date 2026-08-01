@@ -4,11 +4,11 @@
 {% block content %}
 <div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-7">
+        <div class="col-md-9">
             <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h3 class="mb-4">{{ 'Edit' if package else 'Add New' }} Package</h3>
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label class="form-label">Destination</label>
                             <select name="destination_id" class="form-select" required>
@@ -37,18 +37,194 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Image filename</label>
-                            <input type="text" name="image" class="form-control" placeholder="e.g. ebc_pkg.jpg" value="{{ package.image if package else '' }}">
+                            <label class="form-label">Image</label>
+                            {% if package and package.image %}
+                                <div class="mb-2">
+                                    <img src="{{ url_for('static', filename='images/' + package.image) }}" alt="Current Image" width="100" class="rounded">
+                                </div>
+                            {% endif %}
+                            <input type="file" name="image_file" class="form-control" accept="image/*">
+                            <input type="hidden" name="existing_image" value="{{ package.image if package else '' }}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Description</label>
                             <textarea name="description" class="form-control" rows="4" required>{{ package.description if package else '' }}</textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">{{ 'Update' if package else 'Add' }} Package</button>
+
+                        <!-- Itinerary Section -->
+                        <hr class="my-5">
+                        <h4 class="mb-4 text-primary"><i class="bi bi-map"></i> Day-by-Day Itinerary</h4>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Interactive Trail Map</label>
+                            <small class="d-block text-muted mb-2">Click "Pick on Map" next to a day below, then click this map to set its coordinates.</small>
+                            <div id="itineraryMap" style="height: 350px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                        </div>
+
+                        <div id="itineraryContainer">
+                            {% if itineraries %}
+                                {% for item in itineraries %}
+                                <div class="itinerary-day card p-3 mb-3 bg-light border-0 shadow-sm">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5 class="mb-0">Day <span class="day-number-label">{{ item.day_number }}</span></h5>
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-day-btn">Remove</button>
+                                    </div>
+                                    <input type="hidden" name="itinerary_day_number[]" value="{{ item.day_number }}" class="day-input">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-2">
+                                            <input type="text" name="itinerary_title[]" class="form-control" placeholder="Title (e.g. Trek to Namche)" value="{{ item.title }}" required>
+                                        </div>
+                                        <div class="col-md-12 mb-2">
+                                            <textarea name="itinerary_description[]" class="form-control" rows="2" placeholder="Description">{{ item.description or '' }}</textarea>
+                                        </div>
+                                        <div class="col-md-5 mb-2">
+                                            <input type="number" step="0.000001" name="itinerary_latitude[]" class="form-control lat-input" placeholder="Latitude" value="{{ item.latitude if item.latitude != None else '' }}">
+                                        </div>
+                                        <div class="col-md-5 mb-2">
+                                            <input type="number" step="0.000001" name="itinerary_longitude[]" class="form-control lng-input" placeholder="Longitude" value="{{ item.longitude if item.longitude != None else '' }}">
+                                        </div>
+                                        <div class="col-md-2 mb-2 d-grid">
+                                            <button type="button" class="btn btn-sm btn-info pick-map-btn">Pick on Map</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <button type="button" id="addDayBtn" class="btn btn-outline-primary mb-4 w-100">+ Add Another Day</button>
+
+                        <button type="submit" class="btn btn-success w-100 fw-bold p-2 fs-5">{{ 'Update' if package else 'Add' }} Package</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var map = L.map('itineraryMap').setView([28.3949, 84.1240], 7); // Nepal center
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
+    
+    var markers = [];
+    var currentActiveRow = null;
+
+    function renderAllMarkers() {
+        markers.forEach(m => { if(m) map.removeLayer(m); });
+        markers = [];
+        
+        var rows = document.querySelectorAll('.itinerary-day');
+        rows.forEach((row, index) => {
+            var lat = row.querySelector('.lat-input').value;
+            var lng = row.querySelector('.lng-input').value;
+            var title = row.querySelector('input[name="itinerary_title[]"]').value || "Day " + (index+1);
+            
+            if (lat && lng) {
+                var m = L.marker([parseFloat(lat), parseFloat(lng)]).addTo(map).bindPopup(title);
+                markers[index] = m;
+            } else {
+                markers[index] = null;
+            }
+        });
+        
+        if(markers.length > 0) {
+            var validMarkers = markers.filter(m => m != null);
+            if(validMarkers.length > 0) {
+                var group = new L.featureGroup(validMarkers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+    }
+
+    // Give the map a moment to load properly then render
+    setTimeout(function() {
+        map.invalidateSize();
+        renderAllMarkers();
+    }, 500);
+
+    var container = document.getElementById('itineraryContainer');
+    var addBtn = document.getElementById('addDayBtn');
+
+    function updateDayNumbers() {
+        var rows = container.querySelectorAll('.itinerary-day');
+        rows.forEach((row, index) => {
+            row.querySelector('.day-number-label').innerText = index + 1;
+            row.querySelector('.day-input').value = index + 1;
+        });
+        renderAllMarkers();
+    }
+
+    addBtn.addEventListener('click', function() {
+        var nextDay = container.querySelectorAll('.itinerary-day').length + 1;
+        var html = `
+            <div class="itinerary-day card p-3 mb-3 bg-light border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Day <span class="day-number-label">${nextDay}</span></h5>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-day-btn">Remove</button>
+                </div>
+                <input type="hidden" name="itinerary_day_number[]" value="${nextDay}" class="day-input">
+                <div class="row">
+                    <div class="col-md-12 mb-2">
+                        <input type="text" name="itinerary_title[]" class="form-control" placeholder="Title (e.g. Trek to Namche)" required>
+                    </div>
+                    <div class="col-md-12 mb-2">
+                        <textarea name="itinerary_description[]" class="form-control" rows="2" placeholder="Description"></textarea>
+                    </div>
+                    <div class="col-md-5 mb-2">
+                        <input type="number" step="0.000001" name="itinerary_latitude[]" class="form-control lat-input" placeholder="Latitude">
+                    </div>
+                    <div class="col-md-5 mb-2">
+                        <input type="number" step="0.000001" name="itinerary_longitude[]" class="form-control lng-input" placeholder="Longitude">
+                    </div>
+                    <div class="col-md-2 mb-2 d-grid">
+                        <button type="button" class="btn btn-sm btn-info pick-map-btn">Pick on Map</button>
+                    </div>
+                </div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+    });
+
+    container.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-day-btn')) {
+            e.target.closest('.itinerary-day').remove();
+            updateDayNumbers();
+        }
+        
+        if (e.target.classList.contains('pick-map-btn')) {
+            var rows = container.querySelectorAll('.itinerary-day');
+            rows.forEach(r => r.classList.remove('border', 'border-primary', 'border-2'));
+            
+            currentActiveRow = e.target.closest('.itinerary-day');
+            currentActiveRow.classList.add('border', 'border-primary', 'border-2');
+            
+            document.getElementById('itineraryMap').scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+    });
+
+    map.on('click', function(e) {
+        if (!currentActiveRow) {
+            alert("Please click 'Pick on Map' next to a specific day first!");
+            return;
+        }
+        var lat = e.latlng.lat.toFixed(6);
+        var lng = e.latlng.lng.toFixed(6);
+        
+        currentActiveRow.querySelector('.lat-input').value = lat;
+        currentActiveRow.querySelector('.lng-input').value = lng;
+        
+        renderAllMarkers();
+    });
+
+    container.addEventListener('input', function(e) {
+        if (e.target.classList.contains('lat-input') || e.target.classList.contains('lng-input') || e.target.name === 'itinerary_title[]') {
+            renderAllMarkers();
+        }
+    });
+});
+</script>
 {% endblock %}
