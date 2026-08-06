@@ -69,11 +69,11 @@ def destination_details(dest_id):
 def packages():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        SELECT packages.*, destinations.name AS destination_name
-        FROM packages
-        JOIN destinations ON packages.destination_id = destinations.id
-    ''')
+    cursor.execute((
+            "SELECT packages.*, destinations.name AS destination_name "
+            "FROM packages "
+            "JOIN destinations ON packages.destination_id = destinations.id "
+        ))
     all_packages = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -90,19 +90,19 @@ def search():
     
     # Search destinations by name or description
     search_term = f"%{query}%"
-    cursor.execute('''
-        SELECT * FROM destinations 
-        WHERE name LIKE %s OR description LIKE %s
-    ''', (search_term, search_term))
+    cursor.execute((
+            "SELECT * FROM destinations "
+            "WHERE name LIKE %s OR description LIKE %s "
+        ), (search_term, search_term))
     destinations = cursor.fetchall()
     
     # Search packages by title or description
-    cursor.execute('''
-        SELECT packages.*, destinations.name AS destination_name
-        FROM packages
-        JOIN destinations ON packages.destination_id = destinations.id
-        WHERE packages.title LIKE %s OR packages.description LIKE %s OR destinations.name LIKE %s
-    ''', (search_term, search_term, search_term))
+    cursor.execute((
+            "SELECT packages.*, destinations.name AS destination_name "
+            "FROM packages "
+            "JOIN destinations ON packages.destination_id = destinations.id "
+            "WHERE packages.title LIKE %s OR packages.description LIKE %s OR destinations.name LIKE %s "
+        ), (search_term, search_term, search_term))
     packages = cursor.fetchall()
     
     cursor.close()
@@ -215,12 +215,12 @@ def book_package(package_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('''
-        SELECT packages.*, destinations.name AS destination_name
-        FROM packages
-        JOIN destinations ON packages.destination_id = destinations.id
-        WHERE packages.id = %s
-    ''', (package_id,))
+    cursor.execute((
+            "SELECT packages.*, destinations.name AS destination_name "
+            "FROM packages "
+            "JOIN destinations ON packages.destination_id = destinations.id "
+            "WHERE packages.id = %s "
+        ), (package_id,))
     package = cursor.fetchone()
 
     if not package:
@@ -246,11 +246,11 @@ def book_package(package_id):
             conn.close()
             return redirect(url_for('book_package', package_id=package_id))
 
-        cursor.execute('''
-            SELECT id FROM bookings
-            WHERE user_id = %s AND package_id = %s AND travel_date = %s
-            AND status IN ('Pending', 'Confirmed')
-        ''', (session['user_id'], package_id, travel_date))
+        cursor.execute((
+            "SELECT id FROM bookings "
+            "WHERE user_id = %s AND package_id = %s AND travel_date = %s "
+            "AND status IN ('Pending', 'Confirmed') "
+        ), (session['user_id'], package_id, travel_date))
         existing_booking = cursor.fetchone()
 
         if existing_booking:
@@ -275,20 +275,20 @@ def book_package(package_id):
         return redirect(url_for('esewa_payment'))
         # --- end change ---
 
-    cursor.execute('''
-        SELECT r.*, u.full_name 
-        FROM reviews r
-        JOIN users u ON r.user_id = u.id
-        WHERE r.package_id = %s
-        ORDER BY r.created_at DESC
-    ''', (package_id,))
+    cursor.execute((
+            "SELECT r.*, u.full_name "
+            "FROM reviews r "
+            "JOIN users u ON r.user_id = u.id "
+            "WHERE r.package_id = %s "
+            "ORDER BY r.created_at DESC "
+        ), (package_id,))
     reviews = cursor.fetchall()
     
-    cursor.execute('''
-        SELECT * FROM package_itineraries
-        WHERE package_id = %s
-        ORDER BY day_number ASC
-    ''', (package_id,))
+    cursor.execute((
+            "SELECT * FROM package_itineraries "
+            "WHERE package_id = %s "
+            "ORDER BY day_number ASC "
+        ), (package_id,))
     itineraries = cursor.fetchall()
 
     cursor.close()
@@ -301,14 +301,14 @@ def book_package(package_id):
 def my_bookings():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        SELECT bookings.*, packages.title, packages.duration_days, destinations.name AS destination_name
-        FROM bookings
-        JOIN packages ON bookings.package_id = packages.id
-        JOIN destinations ON packages.destination_id = destinations.id
-        WHERE bookings.user_id = %s
-        ORDER BY bookings.booked_at DESC
-    ''', (session['user_id'],))
+    cursor.execute((
+            "SELECT bookings.*, packages.title, packages.duration_days, destinations.name AS destination_name "
+            "FROM bookings "
+            "JOIN packages ON bookings.package_id = packages.id "
+            "JOIN destinations ON packages.destination_id = destinations.id "
+            "WHERE bookings.user_id = %s "
+            "ORDER BY bookings.booked_at DESC "
+        ), (session['user_id'],))
     bookings = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -378,15 +378,15 @@ def admin_dashboard():
 def admin_bookings():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        SELECT bookings.*, users.full_name, users.email,
-               packages.title, destinations.name AS destination_name
-        FROM bookings
-        JOIN users ON bookings.user_id = users.id
-        JOIN packages ON bookings.package_id = packages.id
-        JOIN destinations ON packages.destination_id = destinations.id
-        ORDER BY bookings.travel_date DESC
-    ''')
+    cursor.execute((
+            "SELECT bookings.*, users.full_name, users.email, "
+            "packages.title, destinations.name AS destination_name "
+            "FROM bookings "
+            "JOIN users ON bookings.user_id = users.id "
+            "JOIN packages ON bookings.package_id = packages.id "
+            "JOIN destinations ON packages.destination_id = destinations.id "
+            "ORDER BY bookings.travel_date DESC "
+        ))
     all_bookings = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -464,10 +464,10 @@ def add_destination():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO destinations (name, location, description, image, category, special_features, best_time_to_visit, history, latitude, longitude)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ''', (name, location, description, image, category, special_features, best_time_to_visit, history, latitude, longitude))
+        cursor.execute((
+            "INSERT INTO destinations (name, location, description, image, category, special_features, best_time_to_visit, history, latitude, longitude) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+        ), (name, location, description, image, category, special_features, best_time_to_visit, history, latitude, longitude))
         conn.commit()
         cursor.close()
         conn.close()
@@ -506,11 +506,11 @@ def edit_destination(dest_id):
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 image = filename
 
-        cursor.execute('''
-            UPDATE destinations SET name=%s, location=%s, description=%s, image=%s, category=%s,
-            special_features=%s, best_time_to_visit=%s, history=%s, latitude=%s, longitude=%s
-            WHERE id=%s
-        ''', (name, location, description, image, category, special_features, best_time_to_visit, history, latitude, longitude, dest_id))
+        cursor.execute((
+            "UPDATE destinations SET name=%s, location=%s, description=%s, image=%s, category=%s, "
+            "special_features=%s, best_time_to_visit=%s, history=%s, latitude=%s, longitude=%s "
+            "WHERE id=%s "
+        ), (name, location, description, image, category, special_features, best_time_to_visit, history, latitude, longitude, dest_id))
         conn.commit()
         cursor.close()
         conn.close()
@@ -548,12 +548,12 @@ def delete_destination(dest_id):
 def admin_packages():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        SELECT packages.*, destinations.name AS destination_name
-        FROM packages
-        JOIN destinations ON packages.destination_id = destinations.id
-        ORDER BY packages.id DESC
-    ''')
+    cursor.execute((
+            "SELECT packages.*, destinations.name AS destination_name "
+            "FROM packages "
+            "JOIN destinations ON packages.destination_id = destinations.id "
+            "ORDER BY packages.id DESC "
+        ))
     all_packages = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -582,10 +582,10 @@ def add_package():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 image = filename
 
-        cursor.execute('''
-            INSERT INTO packages (destination_id, title, description, price, duration_days, max_people, image)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        ''', (destination_id, title, description, price, duration_days, max_people, image))
+        cursor.execute((
+            "INSERT INTO packages (destination_id, title, description, price, duration_days, max_people, image) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s) "
+        ), (destination_id, title, description, price, duration_days, max_people, image))
         new_pkg_id = cursor.lastrowid
 
         itin_days = request.form.getlist('itinerary_day_number[]')
@@ -602,10 +602,10 @@ def add_package():
                 lat_val = itin_lats[i] if len(itin_lats) > i and itin_lats[i] else None
                 lng_val = itin_lngs[i] if len(itin_lngs) > i and itin_lngs[i] else None
                 
-                cursor.execute('''
-                    INSERT INTO package_itineraries (package_id, day_number, title, description, latitude, longitude)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                ''', (new_pkg_id, day_val, title_val, desc_val, lat_val, lng_val))
+                cursor.execute((
+            "INSERT INTO package_itineraries (package_id, day_number, title, description, latitude, longitude) "
+            "VALUES (%s, %s, %s, %s, %s, %s) "
+        ), (new_pkg_id, day_val, title_val, desc_val, lat_val, lng_val))
         conn.commit()
         cursor.close()
         conn.close()
@@ -642,10 +642,10 @@ def edit_package(pkg_id):
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 image = filename
 
-        cursor.execute('''
-            UPDATE packages SET destination_id=%s, title=%s, description=%s, price=%s,
-            duration_days=%s, max_people=%s, image=%s WHERE id=%s
-        ''', (destination_id, title, description, price, duration_days, max_people, image, pkg_id))
+        cursor.execute((
+            "UPDATE packages SET destination_id=%s, title=%s, description=%s, price=%s, "
+            "duration_days=%s, max_people=%s, image=%s WHERE id=%s "
+        ), (destination_id, title, description, price, duration_days, max_people, image, pkg_id))
         
         cursor.execute('DELETE FROM package_itineraries WHERE package_id = %s', (pkg_id,))
         itin_days = request.form.getlist('itinerary_day_number[]')
@@ -662,10 +662,10 @@ def edit_package(pkg_id):
                 lat_val = itin_lats[i] if len(itin_lats) > i and itin_lats[i] else None
                 lng_val = itin_lngs[i] if len(itin_lngs) > i and itin_lngs[i] else None
                 
-                cursor.execute('''
-                    INSERT INTO package_itineraries (package_id, day_number, title, description, latitude, longitude)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                ''', (pkg_id, day_val, title_val, desc_val, lat_val, lng_val))
+                cursor.execute((
+            "INSERT INTO package_itineraries (package_id, day_number, title, description, latitude, longitude) "
+            "VALUES (%s, %s, %s, %s, %s, %s) "
+        ), (pkg_id, day_val, title_val, desc_val, lat_val, lng_val))
         conn.commit()
         cursor.close()
         conn.close()
@@ -748,11 +748,11 @@ def esewa_process():
     # NOW actually create the booking row, marked as paid
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO bookings
-            (user_id, package_id, num_people, travel_date, total_price, status, payment_status, payment_method, transaction_id, paid_at)
-        VALUES (%s, %s, %s, %s, %s, 'Pending', 'Paid', 'eSewa', %s, NOW())
-    ''', (
+    cursor.execute((
+            "INSERT INTO bookings "
+            "(user_id, package_id, num_people, travel_date, total_price, status, payment_status, payment_method, transaction_id, paid_at) "
+            "VALUES (%s, %s, %s, %s, %s, 'Pending', 'Paid', 'eSewa', %s, NOW()) "
+        ), (
         session['user_id'], pending['package_id'], pending['num_people'],
         pending['travel_date'], pending['total_price'], transaction_id
     ))
@@ -1050,10 +1050,10 @@ def submit_review(package_id):
         
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO reviews (user_id, package_id, rating, review_text, sentiment)
-        VALUES (%s, %s, %s, %s, %s)
-    ''', (session['user_id'], package_id, rating, review_text, sentiment))
+    cursor.execute((
+            "INSERT INTO reviews (user_id, package_id, rating, review_text, sentiment) "
+            "VALUES (%s, %s, %s, %s, %s) "
+        ), (session['user_id'], package_id, rating, review_text, sentiment))
     conn.commit()
     cursor.close()
     conn.close()
@@ -1068,13 +1068,13 @@ def download_ticket(booking_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     # Ensure this booking belongs to the current user (or admin)
-    cursor.execute('''
-        SELECT b.*, u.full_name, u.email, p.title as package_title
-        FROM bookings b
-        JOIN users u ON b.user_id = u.id
-        JOIN packages p ON b.package_id = p.id
-        WHERE b.id = %s AND (b.user_id = %s OR %s = 1)
-    ''', (booking_id, session['user_id'], session.get('user_id')))
+    cursor.execute((
+            "SELECT b.*, u.full_name, u.email, p.title as package_title "
+            "FROM bookings b "
+            "JOIN users u ON b.user_id = u.id "
+            "JOIN packages p ON b.package_id = p.id "
+            "WHERE b.id = %s AND (b.user_id = %s OR %s = 1) "
+        ), (booking_id, session['user_id'], session.get('user_id')))
     booking = cursor.fetchone()
     cursor.close()
     conn.close()

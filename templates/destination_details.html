@@ -98,8 +98,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }).addTo(map);
 
     let destinationName = "{{ destination.name }}";
-    let destLat = {% if destination.latitude %}{{ destination.latitude }}{% else %}null{% endif %};
-    let destLon = {% if destination.longitude %}{{ destination.longitude }}{% else %}null{% endif %};
+    let destLat = parseFloat("{{ destination.latitude or '' }}") || null;
+    let destLon = parseFloat("{{ destination.longitude or '' }}") || null;
     
     if (destLat !== null && destLon !== null) {
         map.setView([destLat, destLon], 11);
