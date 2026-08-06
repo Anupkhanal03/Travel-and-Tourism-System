@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Guide Portal - Nepal Travel System{% endblock %}
+
+{% block content %}
+<style>
+    .guide-hero {
+        background: url("{{ url_for('static', filename='images/guide_hero_bg.png') }}") no-repeat center center/cover;
+        min-height: 85vh;
+        border-bottom: 5px solid #ffc107;
+    }
+</style>
+<!-- Hero Section -->
+<div class="position-relative overflow-hidden text-center text-light d-flex align-items-center justify-content-center guide-hero">
+    <!-- Overlay -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.4); z-index: 1;"></div>
+    
+    <div class="position-relative z-3 w-100 px-4">
+        <div class="mx-auto" style="max-width: 800px;">
+            <h1 class="display-3 fw-bold text-shadow-sm mb-3">Welcome Back, {{ session.get('guide_name', 'Guide') }}!</h1>
+            <p class="lead fw-normal text-shadow-sm mb-5 fs-4">Manage your tours, connect with travelers, and share the majestic beauty of Nepal with the world.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('guide_dashboard') }}" class="btn btn-warning btn-lg px-5 py-3 fw-bold rounded-pill shadow-lg text-dark">
+                    <i class="bi bi-speedometer2 me-2"></i> Go to Dashboard
+                </a>
+                <a href="{{ url_for('guide_logout') }}" class="btn btn-outline-light btn-lg px-5 py-3 fw-bold rounded-pill shadow-lg">
+                    Log Out
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5 py-5">
+    <div class="row text-center g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm p-4 hover-shadow transition">
+                <div class="card-body">
+                    <div class="display-4 text-warning mb-3"><i class="bi bi-calendar2-check"></i></div>
+                    <h3 class="h4 fw-bold">Manage Schedule</h3>
+                    <p class="text-muted">Keep track of all your upcoming tours and ensure you never miss a beat with your assigned travelers.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm p-4 hover-shadow transition">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-3"><i class="bi bi-chat-left-text"></i></div>
+                    <h3 class="h4 fw-bold">Connect Easily</h3>
+                    <p class="text-muted">Get direct access to your tourists' contact details right from your dashboard to coordinate meeting points.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm p-4 hover-shadow transition">
+                <div class="card-body">
+                    <div class="display-4 text-success mb-3"><i class="bi bi-geo-alt"></i></div>
+                    <h3 class="h4 fw-bold">Local Expertise</h3>
+                    <p class="text-muted">You are automatically matched with tours in your preferred guiding locations for maximum efficiency.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-shadow-sm { text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
+    .hover-shadow:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+    .transition { transition: all .3s ease; }
+</style>
+{% endblock %}

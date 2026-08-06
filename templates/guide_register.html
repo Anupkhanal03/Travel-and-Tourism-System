@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Guide Registration{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white text-center">
+                    <h4><i class="bi bi-person-badge"></i> Guide Portal Registration</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('guide_register') }}" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="experience" class="form-label">Years of Experience</label>
+                            <input type="number" class="form-control" id="experience" name="experience" min="0" value="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="languages" class="form-label">Languages Spoken</label>
+                            <input type="text" class="form-control" id="languages" name="languages" placeholder="e.g. English, Nepali, Hindi" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="preferred_location" class="form-label">Preferred Guiding Location</label>
+                            <select class="form-select" id="preferred_location" name="preferred_location" required>
+                                <option value="" disabled selected>Select an available destination...</option>
+                                {% for loc in locations %}
+                                <option value="{{ loc }}">{{ loc }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_card" class="form-label">Nepal National Identity Card Photo</label>
+                            <input class="form-control" type="file" id="id_card" name="id_card" accept="image/*" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register as Guide</button>
+                    </form>
+                    <div class="mt-3 text-center">
+                        <small>Already registered? <a href="{{ url_for('guide_login') }}">Login here</a></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -18,6 +18,7 @@
         <th>People</th>
         <th>Total Price</th>
         <th>Booking Status</th>
+        <th>Guide</th>
         <th>Payment</th>
         <th>Action</th>
     </tr>
@@ -37,6 +38,16 @@
                 <span class="badge bg-secondary">{{ b.status }}</span>
             {% else %}
                 <span class="badge bg-warning text-dark">{{ b.status }}</span>
+            {% endif %}
+        </td>
+        <td>
+            {% if b.guide_name %}
+                <strong>{{ b.guide_name }}</strong><br>
+                <small class="text-muted"><i class="bi bi-telephone"></i> {{ b.guide_phone }}</small>
+            {% elif b.status == 'Confirmed' %}
+                <span class="text-muted fst-italic">Pending Assignment</span>
+            {% else %}
+                <span class="text-muted">—</span>
             {% endif %}
         </td>
         <td>

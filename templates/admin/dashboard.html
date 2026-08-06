@@ -76,5 +76,74 @@
     {% else %}
     <p class="text-muted">No messages yet.</p>
     {% endif %}
+
+    <h4 class="mt-5 mb-3">Manage Guides</h4>
+    <div class="table-responsive shadow-sm rounded border">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Guide Name & Contact</th>
+                    <th>Details</th>
+                    <th>ID Card</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for guide in guides %}
+                <tr>
+                    <td>{{ guide.id }}</td>
+                    <td>
+                        <strong>{{ guide.full_name }}</strong><br>
+                        <a href="mailto:{{ guide.email }}">{{ guide.email }}</a><br>
+                        <small><i class="bi bi-telephone"></i> {{ guide.phone }}</small>
+                    </td>
+                    <td>
+                        <div><strong>Loc:</strong> {{ guide.preferred_location or 'N/A' }}</div>
+                        <div><strong>Exp:</strong> {{ guide.experience_years }} years</div>
+                        <div><strong>Lang:</strong> {{ guide.languages }}</div>
+                    </td>
+                    <td>
+                        {% if guide.id_card_photo %}
+                            <a href="{{ url_for('static', filename=guide.id_card_photo) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-eye"></i> View ID
+                            </a>
+                        {% else %}
+                            <span class="text-muted">No ID provided</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if guide.status == 'Pending' %}
+                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pending</span>
+                        {% elif guide.status == 'Approved' %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Approved</span>
+                        {% else %}
+                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if guide.status == 'Pending' %}
+                            <a href="{{ url_for('update_guide_status', guide_id=guide.id, status='Approved') }}" class="btn btn-success btn-sm mb-1 w-100" onclick="return confirm('Approve this guide?')">Approve</a>
+                            <a href="{{ url_for('update_guide_status', guide_id=guide.id, status='Rejected') }}" class="btn btn-danger btn-sm w-100" onclick="return confirm('Reject this guide?')">Reject</a>
+                        {% elif guide.status == 'Approved' %}
+                            <a href="{{ url_for('update_guide_status', guide_id=guide.id, status='Rejected') }}" class="btn btn-danger btn-sm w-100" onclick="return confirm('Revoke approval for this guide?')">Revoke</a>
+                        {% else %}
+                            <a href="{{ url_for('update_guide_status', guide_id=guide.id, status='Approved') }}" class="btn btn-success btn-sm w-100" onclick="return confirm('Approve this guide?')">Approve</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox fs-1"></i><br>
+                        No guides registered yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
 </div>
 {% endblock %}

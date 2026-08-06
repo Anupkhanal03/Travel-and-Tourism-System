@@ -19,12 +19,19 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Travel Date</label>
-                            <input type="date" name="travel_date" class="form-control" min="{{ today }}" required>
+                            <input type="date" name="travel_date" id="travelDate" class="form-control" min="{{ today }}" required>
+                        </div>
+                        <div class="mb-3" id="guideSelectionGroup" style="display: none;">
+                            <label class="form-label">Select Guide</label>
+                            <select name="guide_id" id="guideSelect" class="form-select" required>
+                                <option value="" disabled selected>Please select a travel date first...</option>
+                            </select>
+                            <small class="text-muted" id="guideHelpText">Guides are filtered based on availability.</small>
                         </div>
                         <div class="mb-4">
                             <p class="mb-0">Total Price: <strong class="text-success" id="totalPrice">Rs. {{ "{:,.0f}".format(package.price) }}</strong></p>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Confirm Booking</button>
+                        <button type="submit" id="confirmBtn" class="btn btn-primary w-100" disabled>Confirm Booking</button>
                     </form>
                 </div>
             </div>
@@ -69,6 +76,48 @@
         const people = parseInt(this.value) || 1;
         const total = pricePerPerson * people;
         totalPriceEl.textContent = 'Rs. ' + total.toLocaleString();
+    });
+
+    // Dynamic Guide Selection Logic
+    const travelDateInput = document.getElementById('travelDate');
+    const guideSelect = document.getElementById('guideSelect');
+    const guideGroup = document.getElementById('guideSelectionGroup');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const packageId = {{ package.id }};
+
+    travelDateInput.addEventListener('change', function() {
+        const selectedDate = this.value;
+        if (!selectedDate) return;
+        
+        guideGroup.style.display = 'block';
+        guideSelect.innerHTML = '<option value="" disabled selected>Loading available guides...</option>';
+        confirmBtn.disabled = true;
+        
+        fetch(`/api/available_guides?package_id=${packageId}&travel_date=${selectedDate}`)
+            .then(response => response.json())
+            .then(data => {
+                guideSelect.innerHTML = '<option value="" disabled selected>Select your preferred guide...</option>';
+                if (data.length === 0) {
+                    guideSelect.innerHTML = '<option value="" disabled selected>No guides available for this date.</option>';
+                } else {
+                    data.forEach(guide => {
+                        const option = document.createElement('option');
+                        option.value = guide.id;
+                        option.textContent = `${guide.full_name} (${guide.experience_years} yrs exp)`;
+                        guideSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching guides:", err);
+                guideSelect.innerHTML = '<option value="" disabled selected>Error loading guides.</option>';
+            });
+    });
+
+    guideSelect.addEventListener('change', function() {
+        if (this.value) {
+            confirmBtn.disabled = false;
+        }
     });
 
     // {% if itineraries %}

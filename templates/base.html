@@ -26,12 +26,17 @@
             <div class="collapse navbar-collapse" id="navMenu">
                 <ul class="navbar-nav ms-auto mb-2 mb-xl-0 me-3">
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'home' %}active text-white fw-bold{% endif %}" href="{{ url_for('home') }}">Home</a></li>
+                    {% if not session.get('guide_id') %}
                     <li class="nav-item"><a class="nav-link {% if request.endpoint in ['destinations', 'destination_details'] %}active text-white fw-bold{% endif %}" href="{{ url_for('destinations') }}">Destinations</a></li>
                     <li class="nav-item"><a class="nav-link {% if request.endpoint in ['packages', 'book_package'] %}active text-white fw-bold{% endif %}" href="{{ url_for('packages') }}">Packages</a></li>
                     <li class="nav-item"><a class="nav-link text-warning fw-bold {% if request.endpoint == 'custom_trip' %}active text-white{% endif %}" href="{{ url_for('custom_trip') }}"><i class="bi bi-magic"></i> AI Trip</a></li>
+                    {% endif %}
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'contact' %}active text-white fw-bold{% endif %}" href="{{ url_for('contact') }}">Contact</a></li>
 
-                    {% if session.get('user_id') %}
+                    {% if session.get('guide_id') %}
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'guide_dashboard' %}active text-white fw-bold{% endif %}" href="{{ url_for('guide_dashboard') }}"><i class="bi bi-person-badge"></i> Guide Portal</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('guide_logout') }}">Logout ({{ session.get('guide_name') }})</a></li>
+                    {% elif session.get('user_id') %}
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'my_bookings' %}active text-white fw-bold{% endif %}" href="{{ url_for('my_bookings') }}">My Bookings</a></li>
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'user_recommendations' %}active text-white fw-bold{% endif %}" href="{{ url_for('user_recommendations') }}">My Insights</a></li>
                         {% if session.get('role') == 'admin' %}
@@ -42,6 +47,15 @@
                     {% else %}
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'login' %}active text-white fw-bold{% endif %}" href="{{ url_for('login') }}">Login</a></li>
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'register' %}active text-white fw-bold{% endif %}" href="{{ url_for('register') }}">Register</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="guideDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                For Guides
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="guideDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('guide_login') }}">Guide Login</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('guide_register') }}">Guide Register</a></li>
+                            </ul>
+                        </li>
                     {% endif %}
                 </ul>
                 <form class="d-flex" action="{{ url_for('search') }}" method="GET">

@@ -6,7 +6,7 @@ import random
 import string
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db_connection
-from auth import login_required, admin_required
+from auth import login_required, admin_required, guide_required
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
@@ -25,6 +25,9 @@ app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'images')
 
 @app.route('/')
 def home():
+    if session.get('guide_id'):
+        return render_template('guide_home.html')
+        
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM destinations LIMIT 4')
@@ -270,7 +273,8 @@ def book_package(package_id):
             'num_people': num_people,
             'travel_date': travel_date,
             'total_price': total_price,
-            'package_title': package['title']
+            'package_title': package['title'],
+            'guide_id': request.form.get('guide_id')
         }
         return redirect(url_for('esewa_payment'))
         # --- end change ---
@@ -302,10 +306,12 @@ def my_bookings():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute((
-            "SELECT bookings.*, packages.title, packages.duration_days, destinations.name AS destination_name "
+            "SELECT bookings.*, packages.title, packages.duration_days, destinations.name AS destination_name, "
+            "guides.full_name AS guide_name, guides.phone AS guide_phone "
             "FROM bookings "
             "JOIN packages ON bookings.package_id = packages.id "
             "JOIN destinations ON packages.destination_id = destinations.id "
+            "LEFT JOIN guides ON bookings.guide_id = guides.id "
             "WHERE bookings.user_id = %s "
             "ORDER BY bookings.booked_at DESC "
         ), (session['user_id'],))
@@ -342,7 +348,7 @@ def admin_dashboard():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT COUNT(*) AS total FROM users WHERE role = 'user'")
+    cursor.execute('SELECT COUNT(*) AS total FROM users WHERE role = "user"')
     total_users = cursor.fetchone()['total']
 
     cursor.execute('SELECT COUNT(*) AS total FROM destinations')
@@ -351,14 +357,17 @@ def admin_dashboard():
     cursor.execute('SELECT COUNT(*) AS total FROM packages')
     total_packages = cursor.fetchone()['total']
 
-    cursor.execute("SELECT COUNT(*) AS total FROM bookings WHERE status = 'Pending'")
+    cursor.execute('SELECT COUNT(*) AS total FROM bookings WHERE status = "Pending"')
     pending_bookings = cursor.fetchone()['total']
 
-    cursor.execute("SELECT COUNT(*) AS total FROM bookings WHERE status = 'Confirmed'")
+    cursor.execute('SELECT COUNT(*) AS total FROM bookings WHERE status = "Confirmed"')
     confirmed_bookings = cursor.fetchone()['total']
 
     cursor.execute('SELECT * FROM contact_messages ORDER BY created_at DESC')
     contact_messages = cursor.fetchall()
+
+    cursor.execute('SELECT * FROM guides ORDER BY created_at DESC')
+    guides = cursor.fetchall()
 
     cursor.close()
     conn.close()
@@ -369,7 +378,8 @@ def admin_dashboard():
         total_packages=total_packages,
         pending_bookings=pending_bookings,
         confirmed_bookings=confirmed_bookings,
-        contact_messages=contact_messages
+        contact_messages=contact_messages,
+        guides=guides
     )
 
 # ---------- ADMIN: VIEW ALL BOOKINGS ----------
@@ -402,7 +412,19 @@ def update_booking_status(booking_id, status):
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('UPDATE bookings SET status = %s WHERE id = %s', (status, booking_id))
+    
+    if status == 'Confirmed':
+        cursor.execute('SELECT guide_id FROM bookings WHERE id = %s', (booking_id,))
+        booking = cursor.fetchone()
+        
+        cursor.execute('UPDATE bookings SET status = %s WHERE id = %s', (status, booking_id))
+        
+        if booking and booking.get('guide_id'):
+            cursor.execute('INSERT INTO guide_notifications (guide_id, booking_id, message) VALUES (%s, %s, %s)', 
+                           (booking['guide_id'], booking_id, f'You have been assigned a new booking (ID: {booking_id})!'))
+    else:
+        cursor.execute('UPDATE bookings SET status = %s WHERE id = %s', (status, booking_id))
+        
     conn.commit()
     cursor.close()
     conn.close()
@@ -748,16 +770,13 @@ def esewa_process():
     # NOW actually create the booking row, marked as paid
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute((
-            "INSERT INTO bookings "
-            "(user_id, package_id, num_people, travel_date, total_price, status, payment_status, payment_method, transaction_id, paid_at) "
-            "VALUES (%s, %s, %s, %s, %s, 'Pending', 'Paid', 'eSewa', %s, NOW()) "
-        ), (
-        session['user_id'], pending['package_id'], pending['num_people'],
-        pending['travel_date'], pending['total_price'], transaction_id
-    ))
-    conn.commit()
+    # Insert the actual booking into the DB now
+    cursor.execute('''
+        INSERT INTO bookings (user_id, package_id, travel_date, num_people, total_price, status, payment_status, guide_id, transaction_id, paid_at)
+        VALUES (%s, %s, %s, %s, %s, 'Pending', 'Paid', %s, %s, NOW())
+    ''', (session['user_id'], pending['package_id'], pending['travel_date'], pending['num_people'], pending['total_price'], pending.get('guide_id'), transaction_id))
     new_booking_id = cursor.lastrowid
+    conn.commit()
     cursor.close()
     conn.close()
 
@@ -1131,6 +1150,208 @@ def custom_trip():
     best_matches = available[:3]
     
     return render_template('custom_trip.html', packages=best_matches)
+
+# ---------- ADMIN: MANAGE GUIDES ----------
+@app.route('/admin/guides/update/<int:guide_id>/<status>')
+@admin_required
+def update_guide_status(guide_id, status):
+    if status not in ['Approved', 'Rejected', 'Pending']:
+        flash('Invalid status.', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE guides SET status = %s WHERE id = %s', (status, guide_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    flash(f'Guide status updated to {status}.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+# ---------- GUIDE PORTAL ----------
+@app.route('/guide/register', methods=['GET', 'POST'])
+def guide_register():
+    if request.method == 'POST':
+        full_name = request.form['full_name']
+        email = request.form['email']
+        password = request.form['password']
+        phone = request.form['phone']
+        experience = request.form.get('experience', 0)
+        languages = request.form.get('languages', '')
+        preferred_location = request.form.get('preferred_location', '')
+        
+        # Handle file upload for ID Card
+        id_card = request.files.get('id_card')
+        id_card_photo_path = None
+        if id_card and id_card.filename != '':
+            filename = secure_filename(id_card.filename)
+            upload_folder = os.path.join(app.root_path, 'static', 'images', 'guides')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+            filepath = os.path.join(upload_folder, filename)
+            id_card.save(filepath)
+            id_card_photo_path = f'images/guides/{filename}'
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM guides WHERE email = %s', (email,))
+        if cursor.fetchone():
+            flash('Email already exists. Please login.', 'error')
+            cursor.close()
+            conn.close()
+            return redirect(url_for('guide_register'))
+            
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        cursor.execute(
+            'INSERT INTO guides (full_name, email, password_hash, phone, experience_years, languages, preferred_location, id_card_photo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+            (full_name, email, hashed_password, phone, experience, languages, preferred_location, id_card_photo_path)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        flash('Guide registration successful! Your account is pending admin approval.', 'success')
+        return redirect(url_for('guide_login'))
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Fetch distinct destination names that have packages
+    cursor.execute('''
+        SELECT DISTINCT d.name 
+        FROM destinations d
+        JOIN packages p ON d.id = p.destination_id
+    ''')
+    locations = [row['name'] for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+    
+    return render_template('guide_register.html', locations=locations)
+
+@app.route('/guide/login', methods=['GET', 'POST'])
+def guide_login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM guides WHERE email = %s', (email,))
+        guide = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if guide and check_password_hash(guide['password_hash'], password):
+            if guide.get('status') == 'Pending':
+                flash('Your account is currently under review by an administrator.', 'warning')
+                return redirect(url_for('guide_login'))
+            elif guide.get('status') == 'Rejected':
+                flash('Your guide application was rejected. Please contact support.', 'error')
+                return redirect(url_for('guide_login'))
+                
+            session['guide_id'] = guide['id']
+            session['guide_name'] = guide['full_name']
+            flash('Login successful!', 'success')
+            return redirect(url_for('guide_dashboard'))
+        else:
+            flash('Invalid credentials. Please try again.', 'error')
+            
+    return render_template('guide_login.html')
+
+@app.route('/guide/logout')
+def guide_logout():
+    session.pop('guide_id', None)
+    session.pop('guide_name', None)
+    flash('Logged out successfully.', 'success')
+    return redirect(url_for('home'))
+
+@app.route('/guide/dashboard')
+@guide_required
+def guide_dashboard():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get assignments
+    cursor.execute('''
+        SELECT b.*, u.full_name as user_name, u.email as user_email, u.phone as user_phone, p.title as package_title
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        JOIN packages p ON b.package_id = p.id
+        WHERE b.guide_id = %s
+    ''', (session['guide_id'],))
+    assignments = cursor.fetchall()
+    
+    # Get notifications
+    cursor.execute('SELECT * FROM guide_notifications WHERE guide_id = %s ORDER BY created_at DESC', (session['guide_id'],))
+    notifications = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
+    return render_template('guide_dashboard.html', assignments=assignments, notifications=notifications)
+
+@app.route('/guide/notifications/read/<int:notif_id>')
+@guide_required
+def read_notification(notif_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE guide_notifications SET is_read = TRUE WHERE id = %s AND guide_id = %s', (notif_id, session['guide_id']))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('guide_dashboard'))
+
+@app.route('/api/available_guides')
+def available_guides():
+    package_id = request.args.get('package_id')
+    travel_date = request.args.get('travel_date')
+    
+    if not package_id or not travel_date:
+        return jsonify([])
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get package destination and duration
+    cursor.execute('''
+        SELECT d.name, d.location, p.duration_days 
+        FROM packages p 
+        JOIN destinations d ON p.destination_id = d.id 
+        WHERE p.id = %s
+    ''', (package_id,))
+    dest = cursor.fetchone()
+    
+    if not dest:
+        cursor.close()
+        conn.close()
+        return jsonify([])
+
+    duration = dest['duration_days']
+    
+    # Query for available APPROVED guides not double-booked
+    query = '''
+        SELECT id, full_name, experience_years FROM guides g
+        WHERE g.status = 'Approved' 
+        AND (LOWER(g.preferred_location) LIKE LOWER(%s) OR LOWER(g.preferred_location) LIKE LOWER(%s))
+        AND g.id NOT IN (
+            SELECT b_exist.guide_id FROM bookings b_exist
+            JOIN packages p_exist ON b_exist.package_id = p_exist.id
+            WHERE b_exist.status = 'Confirmed' AND b_exist.guide_id IS NOT NULL
+            AND DATE(b_exist.travel_date) <= DATE_ADD(%s, INTERVAL %s DAY)
+            AND DATE_ADD(DATE(b_exist.travel_date), INTERVAL p_exist.duration_days DAY) >= %s
+        )
+    '''
+    cursor.execute(query, (
+        f"%{dest['name']}%", f"%{dest['location']}%", 
+        travel_date, duration, travel_date
+    ))
+    
+    guides = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return jsonify(guides)
 
 if __name__ == '__main__':
     app.run(debug=True)
