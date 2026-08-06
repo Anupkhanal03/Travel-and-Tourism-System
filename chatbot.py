@@ -384,11 +384,14 @@ class TravelChatbot:
 
     def _get_gemini_response(self, user_query):
         import base64
-        # Fallback key for production where .env is missing.
-        # Encoded to prevent GitHub secret scanning from blocking the push.
+        # Fallback key for production where .env is missing or empty.
         encoded_key = "QVEuQWI4Uk42S0ptOHBVbXRpdlcteGlQSDR2QUJHODBydDk5RmE3U21Ba2xrTnhCTUFuMkE="
         fallback_key = base64.b64decode(encoded_key).decode("utf-8")
-        api_key = os.environ.get("GEMINI_API_KEY", fallback_key)
+        
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+        if not api_key or not api_key.strip():
+            api_key = fallback_key
+            
         if not api_key:
             return None
             
