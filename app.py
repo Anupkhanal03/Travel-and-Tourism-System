@@ -20,7 +20,7 @@ import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = 'nepal_travel_secret_key_change_this_later'
+app.secret_key = os.environ.get('SECRET_KEY', 'nepal_travel_secret_key_change_this_later')
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'images')
 
 @app.route('/')
