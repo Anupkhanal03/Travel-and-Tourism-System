@@ -144,6 +144,11 @@ def register():
         if not re.match(email_pattern, email):
             flash('Please enter a valid email address.', 'error')
             return redirect(url_for('register'))
+            
+        phone_pattern = r'^(98|97)\d{8}$'
+        if not re.match(phone_pattern, phone):
+            flash('Phone number must start with 98 or 97 and be exactly 10 digits.', 'error')
+            return redirect(url_for('register'))
         
         conn = get_db_connection()
         cursor = conn.cursor()

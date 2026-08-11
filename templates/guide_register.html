@@ -3,57 +3,61 @@
 {% block title %}Guide Registration{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-dark text-white text-center">
-                    <h4><i class="bi bi-person-badge"></i> Guide Portal Registration</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ url_for('guide_register') }}" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="full_name" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+<div class="auth-wrapper py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7">
+                <div class="auth-card" data-aos="fade-up">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="bi bi-person-badge fs-2"></i>
                         </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" id="phone" name="phone" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="experience" class="form-label">Years of Experience</label>
-                            <input type="number" class="form-control" id="experience" name="experience" min="0" value="0" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="languages" class="form-label">Languages Spoken</label>
-                            <input type="text" class="form-control" id="languages" name="languages" placeholder="e.g. English, Nepali, Hindi" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="preferred_location" class="form-label">Preferred Guiding Location</label>
-                            <select class="form-select" id="preferred_location" name="preferred_location" required>
-                                <option value="" disabled selected>Select an available destination...</option>
-                                {% for loc in locations %}
-                                <option value="{{ loc }}">{{ loc }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="id_card" class="form-label">Nepal National Identity Card Photo</label>
-                            <input class="form-control" type="file" id="id_card" name="id_card" accept="image/*" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Register as Guide</button>
-                    </form>
-                    <div class="mt-3 text-center">
-                        <small>Already registered? <a href="{{ url_for('guide_login') }}">Login here</a></small>
+                        <h2 class="fw-bold text-primary">Join as a Guide</h2>
+                        <p class="text-muted">Lead adventures and show the world the beauty of Nepal.</p>
                     </div>
+                    <form method="POST" action="{{ url_for('guide_register') }}" enctype="multipart/form-data">
+                        <div class="row g-3">
+                            <div class="col-md-6 form-floating mb-3">
+                                <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Full Name" required>
+                                <label for="full_name" class="ps-4">Full Name</label>
+                            </div>
+                            <div class="col-md-6 form-floating mb-3">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                                <label for="email" class="ps-4">Email address</label>
+                            </div>
+                            <div class="col-md-6 form-floating mb-3">
+                                <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone Number" required>
+                                <label for="phone" class="ps-4">Phone Number</label>
+                            </div>
+                            <div class="col-md-6 form-floating mb-3">
+                                <input type="number" class="form-control" id="experience" name="experience" min="0" value="0" required>
+                                <label for="experience" class="ps-4">Years of Experience</label>
+                            </div>
+                            <div class="col-md-12 form-floating mb-3">
+                                <input type="text" class="form-control" id="languages" name="languages" placeholder="e.g. English, Nepali, Hindi" required>
+                                <label for="languages" class="ps-4">Languages Spoken</label>
+                            </div>
+                            <div class="col-md-12 form-floating mb-3">
+                                <select class="form-select" id="preferred_location" name="preferred_location" required>
+                                    <option value="" disabled selected>Select an available destination...</option>
+                                    {% for loc in locations %}
+                                    <option value="{{ loc }}">{{ loc }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="preferred_location" class="ps-4">Preferred Guiding Location</label>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="id_card" class="form-label text-muted small px-1">Nepal National Identity Card Photo</label>
+                                <input class="form-control" type="file" id="id_card" name="id_card" accept="image/*" required>
+                            </div>
+                            <div class="col-md-12 form-floating mb-4">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                                <label for="password" class="ps-4">Password</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">Register as Guide</button>
+                    </form>
+                    <p class="text-center text-muted mb-0">Already registered? <a href="{{ url_for('guide_login') }}" class="text-primary fw-bold text-decoration-none">Login here</a></p>
                 </div>
             </div>
         </div>

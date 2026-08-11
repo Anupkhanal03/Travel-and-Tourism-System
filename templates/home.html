@@ -4,20 +4,26 @@
 
 {% block content %}
 
-<div class="hero-section text-white text-center d-flex align-items-center justify-content-center">
-    <div>
-        <h1 class="display-4 fw-bold">Discover the Beauty of Nepal</h1>
-        <p class="lead">From the Himalayas to the jungles — find your next adventure</p>
-        <a href="{{ url_for('packages') }}" class="btn btn-warning btn-lg mt-2 me-2">Explore Packages</a>
-        <a href="{{ url_for('custom_trip') }}" class="btn btn-outline-light btn-lg mt-2"><i class="bi bi-magic"></i> Custom Trip AI</a>
+<div class="hero-section text-white text-center">
+    <div class="container hero-content">
+        <h1 class="display-3 fw-bold mb-4">Discover the Beauty of Nepal</h1>
+        <p class="lead fs-4 mb-5">From the towering Himalayas to the lush jungles — find your next adventure</p>
+        
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('packages') }}" class="btn btn-warning btn-lg px-5 py-3">Explore Packages</a>
+            <a href="{{ url_for('custom_trip') }}" class="btn btn-outline-light btn-lg px-4 py-3"><i class="bi bi-magic me-2"></i>Custom Trip AI</a>
+        </div>
     </div>
 </div>
 
-<div class="container my-5">
-    <h2 class="text-center mb-4">Popular Destinations</h2>
+<div class="container py-5 my-5">
+    <div class="text-center mb-5" data-aos="fade-up">
+        <h2 class="fw-bold">Popular Destinations</h2>
+        <div class="mx-auto mt-2" style="width: 60px; height: 3px; background-color: var(--brand-accent);"></div>
+    </div>
     <div class="row g-4">
         {% for dest in destinations %}
-        <div class="col-md-3">
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
             <div class="card h-100 shadow-sm">
                 <img src="{{ url_for('static', filename='images/' + dest.image) }}?v=3" class="card-img-top" alt="{{ dest.name }}" style="height: 180px; object-fit: cover;" onerror="this.src='https://placehold.co/400x180?text=Nepal'">
                 <div class="card-body d-flex flex-column">
@@ -32,62 +38,6 @@
     </div>
 </div>
 {% if session.get('user_name') %}
-<style>
-@keyframes shake-bot {
-  0% { transform: translate(1px, 1px) rotate(0deg); }
-  10% { transform: translate(-1px, -2px) rotate(-1deg); }
-  20% { transform: translate(-3px, 0px) rotate(1deg); }
-  30% { transform: translate(3px, 2px) rotate(0deg); }
-  40% { transform: translate(1px, -1px) rotate(1deg); }
-  50% { transform: translate(-1px, 2px) rotate(-1deg); }
-  60% { transform: translate(-3px, 1px) rotate(0deg); }
-  70% { transform: translate(3px, 1px) rotate(-1deg); }
-  80% { transform: translate(-1px, -1px) rotate(1deg); }
-  90% { transform: translate(1px, 2px) rotate(0deg); }
-  100% { transform: translate(1px, -2px) rotate(-1deg); }
-}
-
-.chatbot-greeting-bubble {
-    position: absolute;
-    bottom: 70px;
-    right: 0;
-    width: max-content;
-    background-color: white;
-    color: #333;
-    padding: 10px 15px;
-    border-radius: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    font-size: 0.95rem;
-    z-index: 1000;
-    border: 1px solid #ddd;
-    animation: shake-bot 0.5s;
-    transition: opacity 0.5s ease-out;
-}
-/* Small arrow for the bubble */
-.chatbot-greeting-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    right: 20px;
-    border-width: 8px 8px 0;
-    border-style: solid;
-    border-color: white transparent transparent transparent;
-    display: block;
-    width: 0;
-}
-.chatbot-greeting-bubble::before {
-    content: '';
-    position: absolute;
-    bottom: -9px;
-    right: 19px;
-    border-width: 9px 9px 0;
-    border-style: solid;
-    border-color: #ddd transparent transparent transparent;
-    display: block;
-    width: 0;
-    z-index: -1;
-}
-</style>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     // Vibrate immediately

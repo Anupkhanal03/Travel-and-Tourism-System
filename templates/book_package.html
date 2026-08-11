@@ -2,36 +2,39 @@
 {% block title %}Book {{ package.title }}{% endblock %}
 
 {% block content %}
-<div class="container my-5">
+<div class="container my-5 py-5" data-aos="fade-up">
     <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h3 class="mb-1">{{ package.title }}</h3>
-                    <p class="text-muted">{{ package.destination_name }} &middot; {{ package.duration_days }} days</p>
-                    <h4 class="text-success mb-4">Rs. {{ "{:,.0f}".format(package.price) }} <span class="fs-6 text-muted">per person</span></h4>
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h3 class="fw-bold text-primary">{{ package.title }}</h3>
+                        <p class="text-muted mb-2"><i class="bi bi-geo-alt text-danger"></i> {{ package.destination_name }} &bull; <i class="bi bi-clock"></i> {{ package.duration_days }} days</p>
+                        <h4 class="text-success mb-0">Rs. {{ "{:,.0f}".format(package.price) }} <span class="fs-6 text-muted fw-normal">/ person</span></h4>
+                    </div>
 
                     <form method="POST" action="{{ url_for('book_package', package_id=package.id) }}">
-                        <div class="mb-3">
-                            <label class="form-label">Number of People</label>
-                            <input type="number" name="num_people" id="numPeople" class="form-control" min="1" max="{{ package.max_people }}" value="1" required>
-                            <small class="text-muted">Max {{ package.max_people }} people per booking</small>
+                        <div class="form-floating mb-3">
+                            <input type="number" name="num_people" id="numPeople" class="form-control" placeholder="1" min="1" max="{{ package.max_people }}" value="1" required>
+                            <label for="numPeople">Number of People</label>
+                            <small class="text-muted px-2">Max {{ package.max_people }} people per booking</small>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Travel Date</label>
-                            <input type="date" name="travel_date" id="travelDate" class="form-control" min="{{ today }}" required>
+                        <div class="form-floating mb-3">
+                            <input type="date" name="travel_date" id="travelDate" class="form-control" placeholder="Select Date" min="{{ today }}" required>
+                            <label for="travelDate">Travel Date</label>
                         </div>
-                        <div class="mb-3" id="guideSelectionGroup" style="display: none;">
-                            <label class="form-label">Select Guide</label>
+                        <div class="form-floating mb-4" id="guideSelectionGroup" style="display: none;">
                             <select name="guide_id" id="guideSelect" class="form-select" required>
                                 <option value="" disabled selected>Please select a travel date first...</option>
                             </select>
-                            <small class="text-muted" id="guideHelpText">Guides are filtered based on availability.</small>
+                            <label for="guideSelect">Select Guide</label>
+                            <small class="text-muted px-2" id="guideHelpText">Guides are filtered based on availability.</small>
                         </div>
-                        <div class="mb-4">
-                            <p class="mb-0">Total Price: <strong class="text-success" id="totalPrice">Rs. {{ "{:,.0f}".format(package.price) }}</strong></p>
+                        <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded-3 border">
+                            <span class="fs-5 fw-bold text-muted">Total Price:</span> 
+                            <strong class="fs-4 text-success" id="totalPrice">Rs. {{ "{:,.0f}".format(package.price) }}</strong>
                         </div>
-                        <button type="submit" id="confirmBtn" class="btn btn-primary w-100" disabled>Confirm Booking</button>
+                        <button type="submit" id="confirmBtn" class="btn btn-primary btn-lg w-100 py-3" disabled>Confirm Booking</button>
                     </form>
                 </div>
             </div>

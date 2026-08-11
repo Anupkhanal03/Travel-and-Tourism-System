@@ -1,6 +1,28 @@
 console.log("Nepal Travel System loaded");
 
 document.addEventListener("DOMContentLoaded", function () {
+    // ===== INITIALIZE AOS =====
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 50
+        });
+    }
+
+    // ===== NAVBAR SCROLL EFFECT =====
+    const navbar = document.getElementById("mainNavbar");
+    if (navbar) {
+        window.addEventListener("scroll", function () {
+            if (window.scrollY > 50) {
+                navbar.classList.add("scrolled");
+            } else {
+                navbar.classList.remove("scrolled");
+            }
+        });
+    }
+
     // ===== CHATBOT FUNCTIONALITY =====
     const toggleBtn = document.getElementById("chatbotToggleBtn");
     const closeBtn = document.getElementById("chatbotCloseBtn");

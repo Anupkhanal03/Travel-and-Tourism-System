@@ -2,15 +2,17 @@
 {% block title %}Build Your Own Trip{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold">Build Your Own Trip 🪄</h1>
-        <p class="lead text-muted">Tell us what you're looking for, and our AI will curate the perfect Nepal itinerary for you.</p>
+<div class="page-header" data-aos="fade-down">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-2">Build Your Own Trip <i class="bi bi-magic text-warning"></i></h1>
+        <p class="lead mb-0">Tell us what you're looking for, and our AI will curate the perfect Nepal itinerary for you.</p>
     </div>
+</div>
 
+<div class="container my-5" data-aos="fade-up">
     <div class="row justify-content-center mb-5">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0 rounded-lg">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-body p-5">
                     <form method="POST" action="{{ url_for('custom_trip') }}">
                         <div class="mb-4">

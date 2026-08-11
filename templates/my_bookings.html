@@ -2,9 +2,14 @@
 {% block title %}My Bookings{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h2 class="mb-4">My Bookings</h2>
+<div class="page-header" data-aos="fade-down">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-2">My Bookings</h1>
+        <p class="lead mb-0">Manage your trips and adventures.</p>
+    </div>
+</div>
 
+<div class="container mb-5" data-aos="fade-up">
     {% if bookings|length == 0 %}
         <div class="alert alert-info">You haven't made any bookings yet. <a href="{{ url_for('packages') }}">Browse packages</a>.</div>
     {% else %}
@@ -61,7 +66,10 @@
             {% if b.status == 'Pending' %}
                 <a href="{{ url_for('cancel_booking', booking_id=b.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this booking?')">Cancel</a>
             {% elif b.status == 'Confirmed' %}
-                <a href="{{ url_for('download_ticket', booking_id=b.id) }}" class="btn btn-sm btn-primary"><i class="bi bi-file-earmark-pdf-fill"></i> Ticket</a>
+                <div class="d-flex flex-column gap-2">
+                    <a href="{{ url_for('download_ticket', booking_id=b.id) }}" class="btn btn-sm btn-primary"><i class="bi bi-file-earmark-pdf-fill"></i> Ticket</a>
+                    <a href="{{ url_for('cancel_booking', booking_id=b.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this confirmed booking?')">Cancel</a>
+                </div>
             {% else %}
                 —
             {% endif %}

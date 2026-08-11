@@ -1,75 +1,284 @@
-/* Hero section on homepage */
-.hero-section {
-    height: 70vh;
-    min-height: 400px;
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-                url('https://images.unsplash.com/photo-1605640840605-14ac1855827b?w=1600') center/cover no-repeat;
+/* ==========================================================================
+   NEPAL TRAVEL & TOURISM - DESIGN SYSTEM
+   ========================================================================== */
+
+:root {
+    /* Color Palette */
+    --brand-primary: #1a365d; /* Deep Himalayan Blue */
+    --brand-primary-light: #2b5284;
+    --brand-accent: #e67e22; /* Saffron / Terracotta */
+    --brand-accent-hover: #cf711f;
+    --brand-bg: #fdfcfb; /* Off-white / Cream */
+    --brand-surface: #ffffff;
+    --brand-text: #2d3748;
+    --brand-text-muted: #718096;
+    --brand-border: #e2e8f0;
+    
+    /* Typography */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    
+    /* Shadows & Radii */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 12px 24px rgba(0,0,0,0.12);
+    --shadow-hover: 0 20px 25px -5px rgba(0,0,0,0.15), 0 10px 10px -5px rgba(0,0,0,0.04);
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-pill: 50px;
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Card hover effect for destination/package cards */
-.card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
-}
-
-/* Make navbar brand stand out a bit */
-.navbar-brand {
-    letter-spacing: 0.5px;
-}
-/* Smooth scroll for anchor links */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Footer always at bottom even on short pages */
+/* ==========================================================================
+   GLOBAL STYLES
+   ========================================================================== */
 body {
+    font-family: var(--font-body);
+    color: var(--brand-text);
+    background-color: var(--brand-bg);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
+
+h1, h2, h3, h4, h5, h6, .navbar-brand, .display-4, .display-5 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+}
+
 main {
     flex: 1;
 }
 
-/* Better empty-state spacing */
-.alert {
-    border-radius: 8px;
+html {
+    scroll-behavior: smooth;
 }
 
-/* Subtle button polish */
+/* ==========================================================================
+   BOOTSTRAP OVERRIDES
+   ========================================================================== */
+.btn-primary {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+}
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--brand-primary-light);
+    border-color: var(--brand-primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline-primary {
+    color: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+.btn-outline-primary:hover {
+    background-color: var(--brand-primary);
+    color: white;
+}
+
+.btn-warning {
+    background-color: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: white;
+}
+.btn-warning:hover, .btn-warning:focus {
+    background-color: var(--brand-accent-hover);
+    border-color: var(--brand-accent-hover);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
 .btn {
-    border-radius: 6px;
+    border-radius: var(--radius-pill);
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: var(--transition-smooth);
 }
 
-/* ===== CHATBOT STYLING ===== */
+.card {
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-smooth);
+    background-color: var(--brand-surface);
+    overflow: hidden;
+}
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover) !important;
+}
+
+.card-img-top {
+    transition: transform 0.5s ease;
+}
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.form-control, .form-select {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--brand-border);
+    padding: 0.75rem 1rem;
+    transition: var(--transition-smooth);
+    background-color: #f8fafc;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 0.25rem rgba(26, 54, 93, 0.15);
+    background-color: white;
+}
+
+/* ==========================================================================
+   SPECIFIC COMPONENTS
+   ========================================================================== */
+/* Navbar */
+.navbar {
+    background: rgba(26, 54, 93, 0.85) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    transition: var(--transition-smooth);
+}
+.navbar.scrolled {
+    background: rgba(26, 54, 93, 0.95) !important;
+    box-shadow: var(--shadow-md);
+}
+.navbar-brand {
+    letter-spacing: 0.5px;
+    font-size: 1.5rem;
+}
+.nav-link {
+    font-weight: 500;
+    position: relative;
+    padding-bottom: 5px;
+    margin: 0 5px;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: var(--brand-accent);
+    transition: var(--transition-smooth);
+    transform: translateX(-50%);
+}
+.nav-link:hover::after, .nav-link.active::after {
+    width: 100%;
+}
+
+/* Hero section on homepage */
+.hero-section {
+    height: 80vh;
+    min-height: 500px;
+    background: linear-gradient(to right, rgba(26, 54, 93, 0.8), rgba(26, 54, 93, 0.4)),
+                url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=2074&auto=format&fit=crop') center/cover no-repeat;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.hero-content {
+    animation: fadeInUp 1s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* Footer */
+footer {
+    background-color: #0f2038 !important;
+    border-top: 4px solid var(--brand-accent);
+}
+
+/* Page Headers */
+.page-header {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-light) 100%);
+    color: white;
+    padding: 60px 0;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+/* Auth Cards */
+.auth-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?q=80&w=2071&auto=format&fit=crop') center/cover no-repeat;
+    position: relative;
+}
+.auth-wrapper::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+.auth-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes shake-bot {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+/* ==========================================================================
+   CHATBOT STYLING
+   ========================================================================== */
 .chatbot-container {
     position: fixed;
     bottom: 25px;
     right: 25px;
     z-index: 2000;
-    font-family: inherit;
 }
 .chatbot-toggle-btn {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #0d6efd, #00c6ff);
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-light));
     color: white;
     border: none;
     font-size: 28px;
-    box-shadow: 0 4px 20px rgba(13, 110, 253, 0.4);
+    box-shadow: var(--shadow-md);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+    transition: var(--transition-smooth);
 }
 .chatbot-toggle-btn:hover {
     transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 6px 25px rgba(13, 110, 253, 0.6);
+    box-shadow: var(--shadow-lg);
 }
 .chatbot-window {
     width: 360px;
@@ -81,18 +290,21 @@ main {
     display: flex;
     flex-direction: column;
     border: none;
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: var(--shadow-lg) !important;
     transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transform-origin: bottom right;
+}
+.chatbot-header {
+    background: var(--brand-primary) !important;
 }
 .chatbot-messages {
     flex: 1;
     overflow-y: auto;
-    background-color: #f8f9fa;
+    background-color: #f8fafc;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -100,77 +312,93 @@ main {
 }
 .chat-message {
     display: flex;
-    max-width: 80%;
+    max-width: 85%;
 }
-.chat-message.bot-message {
-    align-self: flex-start;
-}
-.chat-message.user-message {
-    align-self: flex-end;
-}
+.chat-message.bot-message { align-self: flex-start; }
+.chat-message.user-message { align-self: flex-end; }
+
 .message-content {
-    padding: 10px 14px;
+    padding: 12px 16px;
     border-radius: 16px;
-    font-size: 0.9rem;
-    line-height: 1.4;
+    font-size: 0.95rem;
+    line-height: 1.5;
     word-break: break-word;
+    box-shadow: var(--shadow-sm);
 }
 .bot-message .message-content {
-    background-color: #ffffff;
-    color: #212529;
+    background-color: white;
+    color: var(--brand-text);
     border-top-left-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 .user-message .message-content {
-    background: linear-gradient(135deg, #0d6efd, #0084ff);
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-light));
     color: white;
     border-top-right-radius: 4px;
 }
 .suggestion-chip {
-    font-size: 0.8rem !important;
-    border-radius: 20px !important;
-    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+    border-radius: var(--radius-pill) !important;
+    padding: 8px 16px !important;
     background-color: white !important;
-    border: 1px solid #dee2e6 !important;
-    color: #495057 !important;
-    transition: all 0.2s ease !important;
+    border: 1px solid var(--brand-border) !important;
+    color: var(--brand-text) !important;
+    transition: var(--transition-smooth) !important;
     text-align: left;
 }
 .suggestion-chip:hover {
-    background-color: #e9ecef !important;
-    border-color: #adb5bd !important;
-    color: #0d6efd !important;
-    transform: translateY(-1px);
+    background-color: var(--brand-bg) !important;
+    border-color: var(--brand-primary) !important;
+    color: var(--brand-primary) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
-.chatbot-messages::-webkit-scrollbar {
-    width: 6px;
+.chatbot-greeting-bubble {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    width: max-content;
+    background-color: white;
+    color: var(--brand-text);
+    padding: 12px 20px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    font-size: 0.95rem;
+    z-index: 1000;
+    border: 1px solid var(--brand-border);
+    animation: shake-bot 0.5s;
+    transition: opacity 0.5s ease-out;
 }
-.chatbot-messages::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-.chatbot-messages::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-}
-.chatbot-messages::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+.chatbot-greeting-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 20px;
+    border-width: 8px 8px 0;
+    border-style: solid;
+    border-color: white transparent transparent transparent;
+    display: block;
+    width: 0;
 }
 
-/* ===== ANALYTICS CARDS & CUSTOM DESIGN ===== */
+/* ==========================================================================
+   ANALYTICS CARDS & DASHBOARDS
+   ========================================================================== */
 .analytics-card {
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     border: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-smooth);
     overflow: hidden;
+    background: white;
 }
 .analytics-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
 }
 .metric-value {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     font-weight: 700;
+    color: var(--brand-primary);
 }
 .chart-container {
     position: relative;
@@ -181,15 +409,15 @@ main {
     background: linear-gradient(135deg, #20c997, #099268);
     color: white;
     padding: 6px 12px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     font-size: 0.85rem;
     font-weight: 600;
 }
 .hero-insights {
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-light) 100%);
     color: white;
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 40px;
     margin-bottom: 30px;
-    box-shadow: 0 10px 25px rgba(30, 60, 114, 0.2);
-}
+    box-shadow: var(--shadow-md);
+}

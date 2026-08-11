@@ -3,15 +3,22 @@
 {% block title %}{{ destination.name }} - Details{% endblock %}
 
 {% block content %}
-<div class="container my-5">
+<!-- Immersive Header -->
+<div class="position-relative mb-5" data-aos="fade-in">
+    <img src="{{ url_for('static', filename='images/' + destination.image) }}?v=3" class="w-100 object-fit-cover" alt="{{ destination.name }}" style="height: 450px; filter: brightness(0.6);" onerror="this.src='https://placehold.co/1200x450?text=Nepal'">
+    <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-100 px-3">
+        <h1 class="display-3 fw-bold text-shadow">{{ destination.name }}</h1>
+        <p class="lead fs-4 text-shadow"><i class="bi bi-geo-alt-fill text-danger"></i> {{ destination.location }}</p>
+        <span class="badge bg-primary fs-6 mt-2">{{ destination.category }}</span>
+    </div>
+</div>
+
+<div class="container mb-5">
     <div class="row">
-        <!-- Destination Image and Overview -->
-        <div class="col-lg-8">
-            <img src="{{ url_for('static', filename='images/' + destination.image) }}?v=3" class="img-fluid rounded shadow-sm mb-4 w-100" alt="{{ destination.name }}" style="max-height: 400px; object-fit: cover;" onerror="this.src='https://placehold.co/800x400?text=Nepal'">
-            <h1 class="display-5 fw-bold">{{ destination.name }}</h1>
-            <p class="text-muted"><i class="bi bi-geo-alt-fill text-danger"></i> {{ destination.location }} &bull; <span class="badge bg-info text-dark">{{ destination.category }}</span></p>
+        <!-- Destination Overview -->
+        <div class="col-lg-8" data-aos="fade-right">
             
-            <h4 class="mt-4 mb-3">About {{ destination.name }}</h4>
+            <h4 class="mb-3 fw-bold text-primary">About {{ destination.name }}</h4>
             <p class="lead" style="font-size: 1.1rem; line-height: 1.8;">{{ destination.description }}</p>
             
             <div class="row mt-4">
@@ -53,8 +60,8 @@
 
 
         <!-- Available Packages -->
-        <div class="col-lg-4 mt-5 mt-lg-0">
-            <h3 class="mb-4 text-center">Available Packages</h3>
+        <div class="col-lg-4 mt-5 mt-lg-0" data-aos="fade-left">
+            <h3 class="mb-4 text-center fw-bold text-primary">Available Packages</h3>
             {% if packages %}
                 <div class="d-flex flex-column gap-4">
                     {% for pkg in packages %}
