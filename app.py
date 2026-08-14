@@ -954,11 +954,17 @@ def admin_analytics_data():
     
     kmeans = KMeans(n_clusters=min(3, len(df_packages)), random_state=42, n_init=10)
     clusters = kmeans.fit_predict(X_clus_scaled)
-    df_packages['cluster'] = clusters
     
     # Centroids (inverse transform to original scale)
     centroids_scaled = kmeans.cluster_centers_
     centroids = scaler.inverse_transform(centroids_scaled)
+    
+    # Sort clusters by price (centroid[1]) so that 0=Budget, 1=Standard, 2=Premium
+    sorted_idx = np.argsort(centroids[:, 1])
+    mapping = {old_idx: new_idx for new_idx, old_idx in enumerate(sorted_idx)}
+    
+    df_packages['cluster'] = [mapping[c] for c in clusters]
+    centroids = centroids[sorted_idx]
     
     packages_clustered = []
     for _, row in df_packages.iterrows():
