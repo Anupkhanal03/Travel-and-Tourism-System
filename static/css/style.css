@@ -156,7 +156,13 @@ html {
     font-weight: 500;
     position: relative;
     padding-bottom: 5px;
-    margin: 0 5px;
+    margin: 0 2px;
+    font-size: 0.95rem;
+}
+
+.navbar-nav .nav-item .btn {
+    font-size: 0.95rem;
+    padding: 0.4rem 1.2rem;
 }
 .nav-link::after {
     content: '';

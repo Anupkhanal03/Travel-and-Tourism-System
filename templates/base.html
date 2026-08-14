@@ -31,14 +31,16 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navMenu">
-                <ul class="navbar-nav ms-auto mb-2 mb-xl-0 me-3">
+                <ul class="navbar-nav ms-auto mb-2 mb-xl-0 me-3 align-items-xl-center">
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'home' %}active text-white fw-bold{% endif %}" href="{{ url_for('home') }}">Home</a></li>
                     {% if not session.get('guide_id') %}
                     <li class="nav-item"><a class="nav-link {% if request.endpoint in ['destinations', 'destination_details'] %}active text-white fw-bold{% endif %}" href="{{ url_for('destinations') }}">Destinations</a></li>
                     <li class="nav-item"><a class="nav-link {% if request.endpoint in ['packages', 'book_package'] %}active text-white fw-bold{% endif %}" href="{{ url_for('packages') }}">Packages</a></li>
                     <li class="nav-item"><a class="nav-link text-warning fw-bold {% if request.endpoint == 'custom_trip' %}active text-white{% endif %}" href="{{ url_for('custom_trip') }}"><i class="bi bi-magic"></i> AI Trip</a></li>
                     {% endif %}
+                    {% if session.get('role') != 'admin' %}
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'contact' %}active text-white fw-bold{% endif %}" href="{{ url_for('contact') }}">Contact</a></li>
+                    {% endif %}
 
                     {% if session.get('guide_id') %}
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'guide_dashboard' %}active text-white fw-bold{% endif %}" href="{{ url_for('guide_dashboard') }}"><i class="bi bi-person-badge"></i> Guide Portal</a></li>
@@ -47,8 +49,8 @@
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'my_bookings' %}active text-white fw-bold{% endif %}" href="{{ url_for('my_bookings') }}">My Bookings</a></li>
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'user_recommendations' %}active text-white fw-bold{% endif %}" href="{{ url_for('user_recommendations') }}">My Insights</a></li>
                         {% if session.get('role') == 'admin' %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle btn btn-warning text-dark fw-bold px-3 mx-1 rounded-pill" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <li class="nav-item dropdown ms-xl-2">
+                                <a class="btn btn-warning dropdown-toggle text-dark fw-bold px-3 rounded-pill shadow-sm" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-shield-lock-fill"></i> Admin Panel
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
@@ -61,8 +63,8 @@
                     {% else %}
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'login' %}active text-white fw-bold{% endif %}" href="{{ url_for('login') }}">Login</a></li>
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'register' %}active text-white fw-bold{% endif %}" href="{{ url_for('register') }}">Register</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle btn btn-info text-dark fw-bold px-3 mx-1 rounded-pill" href="#" id="guideDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <li class="nav-item dropdown ms-xl-2">
+                            <a class="btn btn-info dropdown-toggle text-dark fw-bold px-3 rounded-pill shadow-sm" href="#" id="guideDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-person-badge"></i> For Guides
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="guideDropdown">
