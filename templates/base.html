@@ -48,7 +48,7 @@
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'user_recommendations' %}active text-white fw-bold{% endif %}" href="{{ url_for('user_recommendations') }}">My Insights</a></li>
                         {% if session.get('role') == 'admin' %}
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-warning fw-bold" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle btn btn-warning text-dark fw-bold px-3 mx-1 rounded-pill" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-shield-lock-fill"></i> Admin Panel
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
@@ -62,8 +62,8 @@
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'login' %}active text-white fw-bold{% endif %}" href="{{ url_for('login') }}">Login</a></li>
                         <li class="nav-item"><a class="nav-link {% if request.endpoint == 'register' %}active text-white fw-bold{% endif %}" href="{{ url_for('register') }}">Register</a></li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="guideDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                For Guides
+                            <a class="nav-link dropdown-toggle btn btn-info text-dark fw-bold px-3 mx-1 rounded-pill" href="#" id="guideDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-badge"></i> For Guides
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="guideDropdown">
                                 <li><a class="dropdown-item" href="{{ url_for('guide_login') }}">Guide Login</a></li>

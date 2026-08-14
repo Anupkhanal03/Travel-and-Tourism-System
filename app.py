@@ -1342,7 +1342,7 @@ def available_guides():
         AND g.id NOT IN (
             SELECT b_exist.guide_id FROM bookings b_exist
             JOIN packages p_exist ON b_exist.package_id = p_exist.id
-            WHERE b_exist.status = 'Confirmed' AND b_exist.guide_id IS NOT NULL
+            WHERE b_exist.status IN ('Confirmed', 'Pending') AND b_exist.guide_id IS NOT NULL
             AND DATE(b_exist.travel_date) <= DATE_ADD(%s, INTERVAL %s DAY)
             AND DATE_ADD(DATE(b_exist.travel_date), INTERVAL p_exist.duration_days DAY) >= %s
         )

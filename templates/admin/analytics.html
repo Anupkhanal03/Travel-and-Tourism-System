@@ -30,31 +30,31 @@
         <!-- Key KPI Metrics Row -->
         <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <div class="card analytics-card p-3 border-start border-primary border-4 bg-white">
-                    <small class="text-muted uppercase fw-semibold">Total Revenue</small>
-                    <div class="metric-value text-primary mt-1" id="kpiRevenue">Rs. 0</div>
+                <div class="card analytics-card p-3 border-start border-primary border-4 bg-white shadow-sm rounded-3">
+                    <small class="text-muted text-uppercase fw-bold">Total Revenue</small>
+                    <div class="metric-value text-primary mt-1 fw-bold fs-4" id="kpiRevenue">Rs. 0</div>
                     <span class="text-success small fw-semibold"><i class="bi bi-graph-up"></i> Dynamic Sales</span>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card analytics-card p-3 border-start border-success border-4 bg-white">
-                    <small class="text-muted uppercase fw-semibold">Total Bookings</small>
-                    <div class="metric-value text-success mt-1" id="kpiBookings">0</div>
-                    <span class="text-muted small">Confirmed & Pending</span>
+                <div class="card analytics-card p-3 border-start border-success border-4 bg-white shadow-sm rounded-3">
+                    <small class="text-muted text-uppercase fw-bold">Total Bookings</small>
+                    <div class="metric-value text-success mt-1 fw-bold fs-4" id="kpiBookings">0</div>
+                    <span class="text-muted small"><i class="bi bi-check-circle"></i> Confirmed & Pending</span>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card analytics-card p-3 border-start border-warning border-4 bg-white">
-                    <small class="text-muted uppercase fw-semibold">Pricing Consistency</small>
-                    <div class="metric-value text-warning mt-1" id="kpiRSquared">0.00</div>
-                    <span class="text-muted small">How well prices match length (out of 1)</span>
+                <div class="card analytics-card p-3 border-start border-warning border-4 bg-white shadow-sm rounded-3">
+                    <small class="text-muted text-uppercase fw-bold">Avg. Booking Value</small>
+                    <div class="metric-value text-warning mt-1 fw-bold fs-4" id="kpiAvgBooking">Rs. 0</div>
+                    <span class="text-muted small"><i class="bi bi-wallet2"></i> Average spend per trip</span>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card analytics-card p-3 border-start border-info border-4 bg-white">
-                    <small class="text-muted uppercase fw-semibold">Total Packages Offered</small>
-                    <div class="metric-value text-info mt-1" id="kpiPackages">0</div>
-                    <span class="text-muted small">Grouped into 3 main types</span>
+                <div class="card analytics-card p-3 border-start border-info border-4 bg-white shadow-sm rounded-3">
+                    <small class="text-muted text-uppercase fw-bold">Active Packages</small>
+                    <div class="metric-value text-info mt-1 fw-bold fs-4" id="kpiPackages">0</div>
+                    <span class="text-muted small"><i class="bi bi-box-seam"></i> Grouped into 3 types</span>
                 </div>
             </div>
         </div>
@@ -91,8 +91,8 @@
                     <div class="chart-container">
                         <canvas id="forecastChart"></canvas>
                     </div>
-                    <div class="mt-3 p-3 bg-light rounded" style="font-size: 0.85rem;">
-                        <strong>How this helps:</strong> We analyze your past bookings to predict how many customers you might expect in the coming months. This helps you plan your resources like guides and hotels in advance.
+                    <div class="mt-3 p-3 bg-light rounded shadow-sm border-start border-success border-3" style="font-size: 0.9rem;">
+                        <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Simple Takeaway:</strong> The solid blue area shows your actual past bookings. The dashed orange line is our smart estimate of what will happen over the next 3 months. Use this to prepare your guides and transport!
                     </div>
                 </div>
             </div>
@@ -104,8 +104,9 @@
                     <div class="chart-container">
                         <canvas id="regressionChart"></canvas>
                     </div>
-                    <div class="mt-3 p-3 bg-light rounded" style="font-size: 0.85rem;">
-                        <strong>How this helps:</strong> This chart shows how package prices typically increase with longer trips. The red line represents the average trend, helping you see if any of your packages are priced unusually high or low compared to the rest.
+                    <div class="mt-3 p-3 bg-light rounded shadow-sm border-start border-danger border-3" style="font-size: 0.9rem;">
+                        <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Simple Takeaway:</strong> Generally, longer trips cost more. The red line shows the "fair price" based on your current packages. If a package (blue dot) is far above the red line, it might be too expensive. If it's far below, it's a great deal! 
+                        <br><span id="pricingConsistencyText" class="fw-bold text-success mt-2 d-block"></span>
                     </div>
                 </div>
             </div>
@@ -120,14 +121,13 @@
                     <div class="chart-container" style="height: 380px;">
                         <canvas id="clusteringChart"></canvas>
                     </div>
-                    <div class="mt-3 p-3 bg-light rounded" style="font-size: 0.85rem;">
-                        <strong>How this helps:</strong> We've grouped your packages into 3 simple categories to help you understand your offerings:
-                        <ul class="mb-0 mt-1">
-                            <li><strong>Group 0 (Blue) - Budget / Short Trips:</strong> Quick and affordable options (e.g., city tours).</li>
-                            <li><strong>Group 1 (Green) - Standard / Medium Trips:</strong> Average length and reasonably priced (e.g., jungle safaris).</li>
-                            <li><strong>Group 2 (Orange) - Premium / Long Trips:</strong> Extended, high-value adventures (e.g., base camp treks).</li>
+                    <div class="mt-3 p-3 bg-light rounded shadow-sm border-start border-info border-3" style="font-size: 0.9rem;">
+                        <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Simple Takeaway:</strong> We've automatically sorted your packages into 3 main groups so you can see what you offer:
+                        <ul class="mb-0 mt-2 list-unstyled">
+                            <li><i class="bi bi-circle-fill text-primary small me-1"></i> <strong>Blue (Budget/Short):</strong> Quick and affordable options.</li>
+                            <li><i class="bi bi-circle-fill text-success small me-1"></i> <strong>Green (Standard):</strong> Average length and reasonably priced.</li>
+                            <li><i class="bi bi-circle-fill text-warning small me-1"></i> <strong>Orange (Premium/Long):</strong> Extended, high-value adventures.</li>
                         </ul>
-                        The large hollow circles represent the "average" trip for each group.
                     </div>
                 </div>
             </div>
@@ -171,7 +171,10 @@
                 
                 document.getElementById("kpiRevenue").innerText = "Rs. " + totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 document.getElementById("kpiBookings").innerText = totalBookings;
-                document.getElementById("kpiRSquared").innerText = data.regression.r_squared.toFixed(4);
+                
+                const avgBooking = totalBookings > 0 ? (totalRevenue / totalBookings) : 0;
+                document.getElementById("kpiAvgBooking").innerText = "Rs. " + avgBooking.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+                
                 document.getElementById("kpiPackages").innerText = data.clustering.packages.length;
 
                 renderTrendChart(data.time_series);
@@ -334,13 +337,16 @@
         
         // Line endpoints
         const linePoints = reg.line.map(pt => ({ x: pt.duration, y: pt.price }));
+        
+        const consistencyPct = Math.round(reg.r_squared * 100);
+        document.getElementById("pricingConsistencyText").innerText = `Your pricing is ${consistencyPct}% consistent across all packages.`;
 
         regressionChart = new Chart(ctx, {
             data: {
                 datasets: [
                     {
                         type: "scatter",
-                        label: "Tours (Duration vs Price)",
+                        label: "Your Packages",
                         data: points,
                         backgroundColor: "#0d6efd",
                         pointRadius: 6,
@@ -355,7 +361,7 @@
                     },
                     {
                         type: "line",
-                        label: `Average Trendline (Consistency = ${reg.r_squared.toFixed(3)})`,
+                        label: `Fair Price Trendline`,
                         data: linePoints,
                         borderColor: "rgba(220, 53, 69, 0.8)",
                         borderWidth: 2,
@@ -420,7 +426,7 @@
         // Append Centroids dataset
         datasets.push({
             type: "scatter",
-            label: "Average Center for each Group",
+            label: "Average Trip for this Group",
             data: centroids,
             borderColor: "#212529",
             backgroundColor: "rgba(255,255,255,0)",
